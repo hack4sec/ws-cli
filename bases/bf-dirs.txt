@@ -1,0 +1,9 @@
+|name|.zip
+|name|.tar
+|name|.tar.gz
+|name|.tar.bz2
+|name|.rar
+|name|_old
+|name|_
+|name|.old
+_|name|

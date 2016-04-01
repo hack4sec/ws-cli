@@ -1,0 +1,13 @@
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
+!backups
+!cms
+!dafs
+!dns
+!form-bruter
+!fuzzer-urls
+!fuzzer-headers
+!pre
+!spider

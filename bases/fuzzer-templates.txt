@@ -1,0 +1,12 @@
+|name|=
+|name|=1
+|name|=-1
+|name|=a
+|name|='\"!@\\.`~$%^()&%23
+|name|[]=|value|
+|name|[][]=|value|
+|name|=debug
+|name|=phpinfo
+|name|=phpinfo()
+|name|=|value|&debug=1
+|name|=%00
