@@ -96,16 +96,16 @@ class SDafsThread(SeleniumThread):
             except UnicodeDecodeError as e:
                 self.logger.ex(e)
                 need_retest = False
-#            except BaseException as e:
-#                try:
-#                    need_retest = True
-#                    if len(e.args) and e.args[0] == 111:
-#                        self.browser_close()
-#                        self.browser_create()
-#                    elif not str(e).count('Timed out waiting for page load'):
-#                        self.logger.ex(e)
-#                except UnicodeDecodeError:
-#                    need_retest = False
+            except BaseException as e:
+                try:
+                    need_retest = True
+                    if len(e.args) and e.args[0] == 111:
+                        self.browser_close()
+                        self.browser_create()
+                    elif not str(e).count('Timed out waiting for page load'):
+                        self.logger.ex(e)
+                except UnicodeDecodeError:
+                    need_retest = False
             self.up_requests_count()
 
         self.browser_close()
