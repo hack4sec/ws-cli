@@ -92,8 +92,8 @@ class SeleniumThread(threading.Thread):
             self.browser.close()
             self.browser.quit()
             self.browser.binary.process.kill()
+
+            if os.path.exists(self.browser.profile_path.replace('webdriver-py-profilecopy', '')):
+                shutil.rmtree(self.browser.profile_path.replace('webdriver-py-profilecopy', ''))
         except BaseException:
             pass
-
-        if os.path.exists(self.browser.profile_path.replace('webdriver-py-profilecopy', '')):
-            shutil.rmtree(self.browser.profile_path.replace('webdriver-py-profilecopy', ''))
