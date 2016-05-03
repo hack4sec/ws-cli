@@ -4,6 +4,7 @@ import Queue
 import time
 
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException
 
 from classes.Registry import Registry
 from classes.threads.SeleniumThread import SeleniumThread
@@ -50,6 +51,8 @@ class SFormBruterThread(SeleniumThread):
         self.counter = counter
         self.result = result
         self.done = False
+
+        Registry().set('url_for_proxy_check', "{0}://{1}".format(protocol, host))
 
     def parse_brute_config(self, path):
         """ Parse conf file to dict """
@@ -138,7 +141,11 @@ class SFormBruterThread(SeleniumThread):
             except Queue.Empty:
                 self.done = True
                 break
-
+            except TimeoutException as e:
+                need_retest = True
+                self.browser_close()
+                self.browser_create()
+                continue
             except UnicodeDecodeError as e:
                 self.logger.ex(e)
                 need_retest = False

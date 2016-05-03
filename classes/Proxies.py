@@ -36,7 +36,10 @@ class Proxies(object):
                 "http": "http://" + proxy,
                 "https": "https://" + proxy,
             }
-            requests.get('http://google.com', timeout=10, allow_redirects=False, proxies=proxies)
+            if Registry().isset('url_for_proxy_check'):
+                requests.get(Registry().get('url_for_proxy_check'), timeout=10, allow_redirects=False, proxies=proxies)
+            else:
+                requests.get('http://google.com', timeout=10, allow_redirects=False, proxies=proxies)
             #print 'Proxy {0} is alive'.format(proxy)
             self.died_count = 0
             return True

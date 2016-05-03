@@ -5,6 +5,8 @@ import Queue
 import time
 import re
 
+from selenium.common.exceptions import TimeoutException
+
 from classes.Registry import Registry
 from classes.threads.SeleniumThread import SeleniumThread
 
@@ -37,6 +39,8 @@ class SBackupsFinderThread(SeleniumThread):
         self.recreate_re = False if not len(recreate_re) else re.compile(recreate_re)
 
         self.logger = Registry().get('logger')
+
+        Registry().set('url_for_proxy_check', "{0}://{1}".format(protocol, domain))
 
         self.browser_create()
 
@@ -75,6 +79,11 @@ class SBackupsFinderThread(SeleniumThread):
             except Queue.Empty:
                 self.done = True
                 break
+            except TimeoutException as e:
+                self.queue.put(word)
+                self.browser_close()
+                self.browser_create()
+                continue
             except BaseException as e:
                 #self.queue.task_done(word)
                 if not str(e).count('Timed out waiting for page load'):

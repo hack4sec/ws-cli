@@ -7,6 +7,8 @@ import time
 import re
 import pprint
 
+from selenium.common.exceptions import TimeoutException
+
 from libs.common import clear_double_slashes
 from classes.Registry import Registry
 from classes.threads.SeleniumThread import SeleniumThread
@@ -40,6 +42,8 @@ class SCmsThread(SeleniumThread):
         self.ddos_human = ddos_human
         self.recreate_re = False if not len(recreate_re) else re.compile(recreate_re)
         self.logger = Registry().get('logger')
+
+        Registry().set('url_for_proxy_check', url)
 
         self.browser_create()
 
@@ -89,6 +93,11 @@ class SCmsThread(SeleniumThread):
             except Queue.Empty:
                 self.done = True
                 break
+            except TimeoutException as e:
+                self.queue.put(path)
+                self.browser_close()
+                self.browser_create()
+                continue
             except UnicodeDecodeError as e:
                 self.logger.ex(e)
                 self.queue.task_done()

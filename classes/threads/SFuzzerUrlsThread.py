@@ -5,6 +5,8 @@ from __future__ import division
 import Queue
 import time
 
+from selenium.common.exceptions import TimeoutException
+
 from classes.Registry import Registry
 from classes.threads.SeleniumThread import SeleniumThread
 from libs.common import file_to_list
@@ -36,6 +38,8 @@ class SFuzzerUrlsThread(SeleniumThread):
         self.ddos_human = ddos_human
         self.recreate_phrase = recreate_phrase
 
+        Registry().set('url_for_proxy_check', "{0}://{1}".format(protocol, domain))
+
         self.browser_create()
 
     def run(self):
@@ -63,6 +67,11 @@ class SFuzzerUrlsThread(SeleniumThread):
             except Queue.Empty:
                 self.done = True
                 break
+            except TimeoutException as e:
+                self.queue.put(url)
+                self.browser_close()
+                self.browser_create()
+                continue
             except BaseException as e:
                 if not str(e).count('Timed out waiting for page load'):
                     print url + " " + str(e)

@@ -6,9 +6,10 @@ import time
 import re
 import pprint
 
+from selenium.common.exceptions import TimeoutException
+
 from classes.Registry import Registry
 from classes.threads.SeleniumThread import SeleniumThread
-
 
 class SDafsThread(SeleniumThread):
     """ Thread class for Dafs modules (selenium) """
@@ -39,6 +40,8 @@ class SDafsThread(SeleniumThread):
         self.delay = int(delay)
         self.ddos_phrase = ddos_phrase
         self.ddos_human = ddos_human
+
+        Registry().set('url_for_proxy_check', "{0}://{1}".format(protocol, host))
 
         self.browser_create()
 
@@ -96,6 +99,11 @@ class SDafsThread(SeleniumThread):
             except UnicodeDecodeError as e:
                 self.logger.ex(e)
                 need_retest = False
+            except TimeoutException as e:
+                need_retest = True
+                self.browser_close()
+                self.browser_create()
+                continue
             except BaseException as e:
                 try:
                     need_retest = True

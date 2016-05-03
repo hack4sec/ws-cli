@@ -32,6 +32,8 @@ class SSpiderThread(SeleniumThread):
         self.ddos_human = ddos_human
         self.recreate_re = False if not len(recreate_re) else re.compile(recreate_re)
 
+        Registry().set('url_for_proxy_check', "{0}://{1}".format('http', host))
+
         self.browser_create()
 
     def run(self):
