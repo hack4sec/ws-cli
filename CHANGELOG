@@ -1,0 +1,3 @@
+0.3 (dev)
+All Selenium threads write requests content in log in binary mode (off random unicode troubles)
+Proxies checks by target host, not by google more

@@ -70,7 +70,7 @@ class SBackupsFinderThread(SeleniumThread):
                 if not self.not_found_re.findall(self.browser.page_source):
                     self.result.append(word)
 
-                self.logger.item(word, self.browser.page_source)
+                self.logger.item(word, self.browser.page_source, True)
 
                 if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
                     Registry().set('positive_limit_stop', True)

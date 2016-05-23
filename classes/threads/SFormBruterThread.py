@@ -119,7 +119,7 @@ class SFormBruterThread(SeleniumThread):
                 self.browser.find_element(By.CSS_SELECTOR, brute_conf['^SUBMIT^']).click()
                 time.sleep(1)
 
-                self.logger.item(word, self.browser.page_source)
+                self.logger.item(word, self.browser.page_source, True)
 
                 if ( (len(self.false_phrase) and not self.browser.page_source.count(self.false_phrase)) or
                          (len(self.true_phrase) and self.browser.page_source.count(self.true_phrase)) ):

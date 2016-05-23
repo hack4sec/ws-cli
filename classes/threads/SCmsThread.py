@@ -86,7 +86,7 @@ class SCmsThread(SeleniumThread):
                 self.logger.item(
                     path,
                     self.browser.page_source,
-                    False
+                    True
                 )
 
                 self.queue.task_done()
