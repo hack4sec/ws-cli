@@ -63,6 +63,13 @@ class FormBruter(WSModule):
                 False,
                 ['--false-phrase']
             ),
+            "retest-codes": WSOption(
+                "retest-codes",
+                "Custom codes for re-test object after 5 sec",
+                "",
+                False,
+                ['--retest-codes']
+            ),
             "true-phrase": WSOption(
                 "true-phrase",
                 "Phrase for detect true answer (auth is good)",
@@ -274,6 +281,7 @@ class FormBruter(WSModule):
                     self.options['url'].value,
                     self.options['false-phrase'].value,
                     self.options['true-phrase'].value,
+                    self.options['retest-codes'].value.lower(),
                     self.options['delay'].value,
                     self.options['confstr'].value,
                     self.options['first-stop'].value.lower(),

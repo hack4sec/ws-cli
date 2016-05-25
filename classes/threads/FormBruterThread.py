@@ -17,15 +17,18 @@ class FormBruterThread(threading.Thread):
     url = None
     mask_symbol = None
     counter = None
-    retested_words = {}
     last_action = 0
     logger = None
+    retested_words = None
+    last_action = 0
+    retest_limit = int(Registry().get('config')['dafs']['retest_limit'])
 
     def __init__(
-            self, queue, protocol, host, url, false_phrase, true_phrase, delay,
+            self, queue, protocol, host, url, false_phrase, true_phrase, retest_codes, delay,
             confstr, first_stop, login, pass_found, counter, result
     ):
         threading.Thread.__init__(self)
+        self.retested_words = {}
         self.queue = queue
         self.protocol = protocol.lower()
         self.host = host
@@ -38,6 +41,7 @@ class FormBruterThread(threading.Thread):
         self.login = login
         self.counter = counter
         self.result = result
+        self.retest_codes = list(set(retest_codes.split(','))) if len(retest_codes) else []
         self.pass_found = pass_found
         self.done = False
         self.logger = Registry().get('logger')
@@ -88,6 +92,16 @@ class FormBruterThread(threading.Thread):
                     need_retest = True
                     self.http.change_proxy()
                     continue
+
+                if resp is not None and len(self.retest_codes) and str(resp.status_code) in self.retest_codes:
+                    if word not in self.retested_words.keys():
+                        self.retested_words[word] = 0
+                    self.retested_words[word] += 1
+
+                    if self.retested_words[word] <= self.retest_limit:
+                        need_retest = True
+                        time.sleep(int(Registry().get('config')['dafs']['retest_delay']))
+                        continue
 
                 self.logger.item(word, resp.content if not resp is None else "")
 
