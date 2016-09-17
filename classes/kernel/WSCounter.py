@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
-""" Kernel class of work counter for all modules """
+"""
+This is part of WebScout software
+Docs EN: http://hack4sec.pro/wiki/index.php/WebScout_en
+Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
+License: MIT
+Copyright (c) Alexey Meshcheryakov <tank1st99@gmail.com>
+
+Kernel class of work counter for all modules
+"""
 from __future__ import division
 import sys
 import time

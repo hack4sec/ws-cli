@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
-""" Class of roller list (get last element - next first element) """
+"""
+This is part of WebScout software
+Docs EN: http://hack4sec.pro/wiki/index.php/WebScout_en
+Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
+License: MIT
+Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pro> (en)
+
+Class of roller list (get last element - next first element)
+"""
 from libs.common import file_to_list
 
 class Roller(object):

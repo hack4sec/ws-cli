@@ -1,7 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" Main run file """
+"""
+This is part of WebScout software
+Docs EN: http://hack4sec.pro/wiki/index.php/WebScout_en
+Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
+License: MIT
+Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pro> (en)
+          (c) Alexey Meshcheryakov <tank1st99@gmail.com>
+
+Main run file
+"""
 
 import sys
 import argparse
