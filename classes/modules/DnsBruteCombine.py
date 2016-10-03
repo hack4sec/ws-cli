@@ -6,7 +6,7 @@ Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
 License: MIT
 Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pro> (en)
 
-Class of WS Module for DNS Brute by dict
+Class of WS Module for DNS Brute by dict+mask
 """
 
 import os
@@ -18,7 +18,7 @@ from classes.Registry import Registry
 from classes.CombineGenerator import CombineGenerator
 
 class DnsBruteCombine(DnsBruteModules):
-    """ Class of WS Module for DNS Brute by dict """
+    """ Class of WS Module for DNS Brute by dict+mask """
     model = None
     mode = 'dict'
     log_path = '/dev/null'
