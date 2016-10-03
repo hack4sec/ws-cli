@@ -50,9 +50,9 @@ class FileGenerator(object):
         line = self._fh.readline()
 
         if self.second_border:
-            if self.current_counter < self.first_border:
+            if self.current_counter <= self.first_border:
                 return self.get()
-            if self.current_counter >= self.second_border:
+            if self.current_counter > self.second_border:
                 return None
 
         return line.strip() if line else None

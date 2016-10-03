@@ -49,7 +49,6 @@ class DnsBruteThread(threading.Thread):
                 time.sleep(self.delay)
             try:
                 host = self.queue.get()
-
                 self.counter.up()
                 check_name = self.domain.replace(self.msymbol, host)
                 query = dns.message.make_query(check_name, 'A')

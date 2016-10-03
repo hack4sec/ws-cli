@@ -191,9 +191,9 @@ class DictOfMask(object):
             return None
 
         if self.second_border:
-            if self.current_counter < self.first_border:
+            if self.current_counter <= self.first_border:
                 return self.get()
-            if self.current_counter >= self.second_border:
+            if self.current_counter > self.second_border:
                 return None
 
         to_return = self._get()
