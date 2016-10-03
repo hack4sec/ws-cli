@@ -1,0 +1,8 @@
+0.3 (dev)
+Modules HostsBrute* added
+In DNS brute modules added param --ignore-ip (see docs)
+Combine modules added for Dafs and DnsBrute
+DNS brute modules output now contains full list (host+ip+dns) and separate lists (hosts only and ips only)
+DNS brute modules check msymbol in host template
+All Selenium threads write requests content in log in binary mode (off random unicode troubles)
+Proxies checks by target host, not by google more
