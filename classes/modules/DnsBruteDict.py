@@ -83,6 +83,13 @@ class DnsBruteDict(DnsBruteModules):
                 False,
                 ['--part']
             ),
+            "ignore": WSOption(
+                "ignore",
+                "This IP-address must be ignore in positive detections",
+                "",
+                False,
+                ['--ignore']
+            ),
         },
     }
 

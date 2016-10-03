@@ -98,6 +98,7 @@ class DnsBruteModules(WSModule):
                 self.options['host'].value,
                 protocol,
                 self.options['msymbol'].value,
+                self.options['ignore'].value,
                 next_server,
                 self.options['delay'].value,
                 result,
