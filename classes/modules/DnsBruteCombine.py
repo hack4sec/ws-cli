@@ -97,12 +97,12 @@ class DnsBruteCombine(DnsBruteModules):
                 False,
                 ['--part']
             ),
-            "ignore": WSOption(
-                "ignore",
+            "ignore-ip": WSOption(
+                "ignore-ip",
                 "This IP-address must be ignore in positive detections",
                 "",
                 False,
-                ['--ignore']
+                ['--ignore-ip']
             ),
         },
     }
@@ -122,7 +122,4 @@ class DnsBruteCombine(DnsBruteModules):
     def validate_main(self):
         """ Method for validate user params """
         super(DnsBruteCombine, self).validate_main()
-
-        if not os.path.exists(self.options['dict'].value):
-            raise WSException("Dictionary '{0}' not exists or not readable".format(self.options['dict'].value))
 

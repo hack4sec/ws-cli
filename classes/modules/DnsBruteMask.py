@@ -81,12 +81,12 @@ class DnsBruteMask(DnsBruteModules):
                 False,
                 ['--part']
             ),
-            "ignore": WSOption(
-                "ignore",
+            "ignore-ip": WSOption(
+                "ignore-ip",
                 "This IP-address must be ignore in positive detections",
                 "",
                 False,
-                ['--ignore']
+                ['--ignore-ip']
             ),
         },
     }
