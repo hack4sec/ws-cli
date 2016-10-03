@@ -45,7 +45,8 @@ class CombineGenerator(object):
         self.mask = mask
         self.mask_generator = DictOfMask(mask)
 
-        self.lines_count = self.dict_generator.lines_count * self.mask_generator.all_objects_count
+        self.lines_count = (self.dict_generator.lines_count * self.template.count("%d%")) * \
+            (self.mask_generator.all_objects_count * self.template.count("%m%"))
 
         if parts and part:
             one_part_count = int(self.lines_count/parts)
@@ -53,6 +54,7 @@ class CombineGenerator(object):
             self.second_border = one_part_count * part
 
     def _get(self):
+        """ Get next combine item """
         mask = self.get_next_mask()
         if mask is None:
             self.next_dict_line()
@@ -65,6 +67,7 @@ class CombineGenerator(object):
         return self.template.replace("%m%", mask).replace("%d%", self.current_dict_line)
 
     def get(self):
+        """ Get next combine item and up counters """
         self.current_counter += 1
         to_return = self._get()
 
@@ -78,12 +81,15 @@ class CombineGenerator(object):
 
 
     def get_next_mask(self):
+        """ Get next mask string from mask generator """
         return self.mask_generator.get()
 
     def next_dict_line(self):
+        """ Set next string from dict generator """
         self.current_dict_line = self.dict_generator.get()
 
     def get_dict_current_line(self):
+        """ Get next line from dict and get next if need  """
         if not len(self.current_dict_line):
-             self.next_dict_line()
+            self.next_dict_line()
         return self.current_dict_line
