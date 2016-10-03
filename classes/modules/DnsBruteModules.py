@@ -114,9 +114,14 @@ class DnsBruteModules(WSModule):
                     del w_thrds[w_thrds.index(worker)]
             time.sleep(2)
 
-        self.logger.log("\nFound hosts:")
+        self.logger.log("\nFound hosts (full):")
         for host in result:
-            self.logger.log("\t{0} (DNS: {1})".format(host['name'], host['dns']))
+            self.logger.log("\t{0} {1} (DNS: {2})".format(host['name'], host['ip'], host['dns']))
+
+        self.logger.log("\nFound hosts names:")
+        for host in result:
+            self.logger.log("\t{0}".format(host['name']))
+
         self.logger.log("Found IPs:")
 
         uniq_hosts = []
