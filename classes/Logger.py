@@ -72,17 +72,8 @@ class Logger(object):
             name = re.sub(r"[^a-zA-Z0-9_\-\.\|]", "_", name)
 
             ext = "bin" if binary else "txt"
-            #fh = open("{0}/{1}.{2}".format(self.items_dir, name, ext), 'wb')
+
             fh = codecs.open("{0}/{1}.{2}".format(self.items_dir, name, ext), 'wb', 'utf-8')
-            #content = bytearray(content)
-#            try:
-#                fh.write(content)
-#            except UnicodeDecodeError:
-#                fh.write("ENCODING ERROR")
-#            fh = open(
-#                "{0}/{1}.{2}".format(self.items_dir, name, ext),
-#                "wb" if binary else "w"
-#            )
 
             if binary:
                 try:
