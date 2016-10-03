@@ -27,10 +27,11 @@ from classes.threads.DnsBruteThread import DnsBruteThread
 
 
 class DnsBruteModules(WSModule):
+    """ Common class for DnsBrute modules """
     logger_enable = True
     logger_name = 'dns'
     logger_have_items = False
-    """ Common class for DnsBrute modules """
+
     def validate_main(self):
         """ Check users params """
         if self.options['protocol'].value not in ['tcp', 'udp', 'auto']:
