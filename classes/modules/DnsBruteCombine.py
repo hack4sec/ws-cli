@@ -69,12 +69,12 @@ class DnsBruteCombine(DnsBruteModules):
                 True,
                 ['--mask']
             ),
-            "template": WSOption(
-                "template",
+            "combine-template": WSOption(
+                "combine-template",
                 "Template for combine",
                 "",
                 True,
-                ['--template']
+                ['--combine-template']
             ),
             "delay": WSOption(
                 "delay",
@@ -114,7 +114,7 @@ class DnsBruteCombine(DnsBruteModules):
             self.options['dict'].value,
             int(self.options['parts'].value),
             int(self.options['part'].value),
-            self.options['template'].value
+            self.options['combine-template'].value
         )
         queue.set_generator(generator)
         return {'all': generator.lines_count, 'start': generator.first_border, 'end': generator.second_border}
