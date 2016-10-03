@@ -39,6 +39,12 @@ class DnsBruteModules(WSModule):
                 .format(self.options['protocol'].value)
             )
 
+        if not self.options['host'].value.count(self.options['msymbol'].value):
+            raise WSException(
+                "Host template must contains msymbol ({0}), but it not ({1})"
+                .format(self.options['msymbol'].value, self.options['host'].value)
+            )
+
     def load_objects(self, queue):
         """ Method for prepare test objects, here abstract """
         pass
