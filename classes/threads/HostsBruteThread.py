@@ -101,7 +101,12 @@ class HostsBruteThread(threading.Thread):
                         time.sleep(int(Registry().get('config')['hosts_brute']['retest_delay']))
                         continue
 
-                if resp is not None and not resp.text.count(self.false_phrase):
+                search_scope = ""
+                for header in resp.headers:
+                    search_scope += "{0}: {1}\r\n".format(header.title(), resp.headers[header])
+                search_scope += '\r\n\r\n' + resp.text
+
+                if resp is not None and not search_scope.count(self.false_phrase):
                     self.result.append(hostname)
 
                 self.logger.item(word, resp.content if not resp is None else "", binary_content)
