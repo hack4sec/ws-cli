@@ -1,4 +1,4 @@
-0.3 (dev)
+0.3a
  Modules HostsBrute* added
  In DNS brute modules added param --ignore-ip (see docs)
  Combine modules added for Dafs and DnsBrute
