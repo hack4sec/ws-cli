@@ -29,7 +29,7 @@ class FormBruterThread(threading.Thread):
     logger = None
     retested_words = None
     last_action = 0
-    retest_limit = int(Registry().get('config')['dafs']['retest_limit'])
+    retest_limit = int(Registry().get('config')['form_bruter']['retest_limit'])
 
     def __init__(
             self, queue, protocol, host, url, false_phrase, true_phrase, retest_codes, delay,
@@ -108,7 +108,7 @@ class FormBruterThread(threading.Thread):
 
                     if self.retested_words[word] <= self.retest_limit:
                         need_retest = True
-                        time.sleep(int(Registry().get('config')['dafs']['retest_delay']))
+                        time.sleep(int(Registry().get('config')['form_bruter']['retest_delay']))
                         continue
 
                 self.logger.item(word, resp.content if not resp is None else "")
