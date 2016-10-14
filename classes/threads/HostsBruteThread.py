@@ -106,10 +106,12 @@ class HostsBruteThread(threading.Thread):
                     search_scope += "{0}: {1}\r\n".format(header.title(), resp.headers[header])
                 search_scope += '\r\n\r\n' + resp.text
 
+                positive_item = False
                 if resp is not None and not search_scope.count(self.false_phrase):
                     self.result.append(hostname)
+                    positive_item = True
 
-                self.logger.item(word, resp.content if not resp is None else "", binary_content)
+                self.logger.item(word, resp.content if not resp is None else "", binary_content, positive=positive_item)
 
                 if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
                     Registry().set('positive_limit_stop', True)

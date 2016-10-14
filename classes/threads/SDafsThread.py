@@ -87,14 +87,16 @@ class SDafsThread(SeleniumThread):
                     self.browser_create()
                     continue
 
+                positive_item = False
                 if not self.not_found_re.findall(self.browser.page_source):
                     self.result.append({
                         'url': url,
                         'code': 0,
                         'time': int(time.time()) - rtime
                     })
+                    positive_item = True
 
-                self.logger.item(word, self.browser.page_source, True)
+                self.logger.item(word, self.browser.page_source, True, positive=positive_item)
 
                 if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
                     Registry().set('positive_limit_stop', True)

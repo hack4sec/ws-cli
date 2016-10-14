@@ -64,9 +64,9 @@ class Logger(object):
                 print _str,
         sys.stdout.flush()
 
-    def item(self, name, content, binary=False):
+    def item(self, name, content, binary=False, positive=False):
         """ Write item and it content in txt-file """
-        if int(Registry().get('config')['main']['log_modules_items']) and len(name):
+        if positive or int(Registry().get('config')['main']['log_modules_items']) and len(name):
             name = name[1:] if name[0] == '/' else name
             name = name.replace(" ", "_")
             name = re.sub(r"[^a-zA-Z0-9_\-\.\|]", "_", name)

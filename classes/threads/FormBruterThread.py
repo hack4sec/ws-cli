@@ -111,21 +111,22 @@ class FormBruterThread(threading.Thread):
                         time.sleep(int(Registry().get('config')['form_bruter']['retest_delay']))
                         continue
 
-                self.logger.item(word, resp.content if not resp is None else "")
-
+                positive_item = False
                 if (len(self.false_phrase) and
                         not resp.content.count(self.false_phrase)) or \
                         (len(self.true_phrase) and resp.content.count(self.true_phrase)):
                     self.result.append({'word': word, 'content': resp.content})
-                    #self.logger.log("Result: {0}".format(word))
+                    positive_item = True
 
                     if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
                         Registry().set('positive_limit_stop', True)
 
-                    if int(self.first_stop):
-                        self.done = True
-                        self.pass_found = True
-                        break
+                self.logger.item(word, resp.content if not resp is None else "", positive=positive_item)
+
+                if positive_item and int(self.first_stop):
+                    self.done = True
+                    self.pass_found = True
+                    break
 
                 need_retest = False
             except Queue.Empty:

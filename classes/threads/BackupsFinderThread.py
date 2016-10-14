@@ -73,14 +73,17 @@ class BackupsFinderThread(threading.Thread):
 
                 binary_content = resp is not None and is_binary_content_type(resp.headers['content-type'])
 
+                positive_item = False
                 if resp is not None and str(resp.status_code) not in self.not_found_codes \
                     and not (not binary_content and self.not_found_re and self.not_found_re.findall(resp.content)):
                     self.result.append(word)
+                    positive_item = True
 
                 self.logger.item(
                     word,
                     resp.content if not resp is None else "",
-                    binary_content
+                    binary_content,
+                    positive=positive_item
                 )
 
                 if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):

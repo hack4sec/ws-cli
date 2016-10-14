@@ -57,7 +57,6 @@ class SCmsThread(SeleniumThread):
 
     def run(self):
         """ Run thread """
-        need_retest = False
         while not self.done:
             self.last_action = int(time.time())
 
@@ -85,16 +84,19 @@ class SCmsThread(SeleniumThread):
                     self.browser_create()
                     continue
 
+                positive_item = False
                 if not self.not_found_re.findall(self.browser.page_source):
                     self.result.append({
                         'path': path,
                         'code': 0,
                     })
+                    positive_item = True
 
                 self.logger.item(
                     path,
                     self.browser.page_source,
-                    True
+                    True,
+                    posivite=positive_item
                 )
 
                 self.queue.task_done()

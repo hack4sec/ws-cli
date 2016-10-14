@@ -38,7 +38,7 @@ class DafsThread(threading.Thread):
             not_found_codes, retest_codes, delay, counter, result):
         threading.Thread.__init__(self)
         self.retested_words = {}
-        
+
         self.queue = queue
         self.protocol = protocol.lower()
         self.host = host
@@ -108,6 +108,7 @@ class DafsThread(threading.Thread):
                         time.sleep(int(Registry().get('config')['dafs']['retest_delay']))
                         continue
 
+                positive_item = False
                 if resp is not None \
                     and str(resp.status_code) not in self.not_found_codes \
                     and not (not binary_content and self.not_found_re and self.not_found_re.findall(resp.content)):
@@ -116,8 +117,9 @@ class DafsThread(threading.Thread):
                         'code': resp.status_code,
                         'time': int(time.time()) - rtime
                     })
+                    positive_item = True
 
-                self.logger.item(word, resp.content if not resp is None else "", binary_content)
+                self.logger.item(word, resp.content if not resp is None else "", binary_content, positive=positive_item)
 
                 if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
                     Registry().set('positive_limit_stop', True)

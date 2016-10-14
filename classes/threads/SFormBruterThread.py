@@ -30,8 +30,8 @@ class SFormBruterThread(SeleniumThread):
     first_page_load = False
 
     def __init__(
-            self, queue, protocol, host, url, false_phrase, true_phrase, delay, ddos_phrase, ddos_human, recreate_phrase,
-            conffile, first_stop, login, #reload_form_page,
+            self, queue, protocol, host, url, false_phrase, true_phrase, delay, ddos_phrase, ddos_human,
+            recreate_phrase, conffile, first_stop, login, #reload_form_page,
             pass_found, counter, result
     ):
         super(SFormBruterThread, self).__init__()
@@ -127,16 +127,18 @@ class SFormBruterThread(SeleniumThread):
                 self.browser.find_element(By.CSS_SELECTOR, brute_conf['^SUBMIT^']).click()
                 time.sleep(1)
 
-                self.logger.item(word, self.browser.page_source, True)
-
-                if ( (len(self.false_phrase) and not self.browser.page_source.count(self.false_phrase)) or
-                         (len(self.true_phrase) and self.browser.page_source.count(self.true_phrase)) ):
+                positive_item = False
+                if ((len(self.false_phrase) and not self.browser.page_source.count(self.false_phrase)) or
+                        (len(self.true_phrase) and self.browser.page_source.count(self.true_phrase))):
                     self.result.append({'word': word, 'content': self.browser.page_source})
-                    #self.logger.log("Result: {0}".format(word))
+                    positive_item = True
 
                     if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
                         Registry().set('positive_limit_stop', True)
 
+                self.logger.item(word, self.browser.page_source, True, positive=positive_item)
+
+                if positive_item:
                     if int(self.first_stop):
                         self.done = True
                         self.pass_found = True
@@ -145,6 +147,7 @@ class SFormBruterThread(SeleniumThread):
                         # Иначе старая сессия останется и будет куча false-positive
                         self.browser_close()
                         self.browser_create()
+
                 need_retest = False
             except Queue.Empty:
                 self.done = True
