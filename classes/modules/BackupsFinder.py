@@ -10,7 +10,6 @@ Module for find backups
 """
 
 import time
-import re
 import os
 from urlparse import urlparse
 
@@ -20,7 +19,6 @@ from classes.Registry import Registry
 from classes.models.HostsModel import HostsModel
 from classes.models.UrlsModel import UrlsModel
 from classes.models.RequestsModel import RequestsModel
-from classes.kernel.WSException import WSException
 from classes.kernel.WSCounter import WSCounter
 from classes.kernel.WSOption import WSOption
 from classes.kernel.WSModule import WSModule
@@ -233,6 +231,7 @@ class BackupsFinder(WSModule):
 
             time.sleep(1)
 
+        timeout_threads_count = 0
         while len(w_thrds):
             for worker in w_thrds:
                 if Registry().get('proxy_many_died') or Registry().get('positive_limit_stop'):
@@ -241,8 +240,47 @@ class BackupsFinder(WSModule):
                 if worker.done:
                     del w_thrds[w_thrds.index(worker)]
                 if int(time.time()) - worker.last_action > int(Registry().get('config')['main']['kill_thread_after_secs']):
-                    self.logger.log("Thread killed by time")
+                    self.logger.log(
+                        "Thread killed by time, resurected {0} times from {1}".format(
+                            timeout_threads_count,
+                            Registry().get('config')['main']['timeout_threads_resurect_max_count']
+                        )
+                    )
                     del w_thrds[w_thrds.index(worker)]
+
+                    if timeout_threads_count <= int(Registry().get('config')['main']['timeout_threads_resurect_max_count']):
+                        if self.options['selenium'].value:
+                            worker = SBackupsFinderThread(
+                                q,
+                                self.options['host'].value,
+                                self.options['protocol'].value.lower(),
+                                self.options['method'].value.lower(),
+                                self.options['not-found-re'].value,
+                                self.options['delay'].value,
+                                self.options['ddos-detect-phrase'].value,
+                                self.options['ddos-human-action'].value,
+                                self.options['browser-recreate-re'].value,
+                                counter,
+                                result
+                            )
+                        else:
+                            worker = BackupsFinderThread(
+                                q,
+                                self.options['host'].value,
+                                self.options['protocol'].value.lower(),
+                                self.options['method'].value.lower(),
+                                self.options['not-found-re'].value,
+                                self.options['not-found-codes'].value.lower(),
+                                self.options['delay'].value,
+                                counter,
+                                result
+                            )
+                        worker.setDaemon(True)
+                        worker.start()
+                        w_thrds.append(worker)
+
+                        timeout_threads_count += 1
+
             time.sleep(2)
 
         if Registry().get('positive_limit_stop'):

@@ -1,4 +1,6 @@
 0.3a
+ Threads killed by time create new, but in limit with timeout_threads_resurect_max_count from config
+ Content of positive items (dafs, form-brute, etc) loging always
  Modules HostsBrute* added
  In DNS brute modules added param --ignore-ip (see docs)
  Combine modules added for Dafs and DnsBrute

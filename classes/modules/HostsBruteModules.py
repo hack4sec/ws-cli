@@ -109,6 +109,7 @@ class HostsBruteModules(WSModule):
 
             time.sleep(1)
 
+        timeout_threads_count = 0
         while len(w_thrds):
             if Registry().get('proxy_many_died'):
                 self.logger.log("Proxy many died, stop scan")
@@ -122,9 +123,33 @@ class HostsBruteModules(WSModule):
                     del w_thrds[w_thrds.index(worker)]
 
                 if int(time.time()) - worker.last_action > int(Registry().get('config')['main']['kill_thread_after_secs']):
-                    self.logger.log("Thread killed by time")
+                    self.logger.log(
+                        "Thread killed by time, resurected {0} times from {1}".format(
+                            timeout_threads_count,
+                            Registry().get('config')['main']['timeout_threads_resurect_max_count']
+                        )
+                    )
                     del w_thrds[w_thrds.index(worker)]
 
+                    if timeout_threads_count <= int(Registry().get('config')['main']['timeout_threads_resurect_max_count']):
+                        worker = HostsBruteThread(
+                            q,
+                            self.options['protocol'].value,
+                            self.options['host'].value,
+                            self.options['template'].value,
+                            self.options['msymbol'].value,
+                            self.options['false-phrase'].value,
+                            self.options['retest-codes'].value.lower(),
+                            self.options['delay'].value,
+                            counter,
+                            result
+                        )
+
+                        worker.setDaemon(True)
+                        worker.start()
+                        w_thrds.append(worker)
+
+                        timeout_threads_count += 1
             time.sleep(2)
 
         if Registry().get('positive_limit_stop'):

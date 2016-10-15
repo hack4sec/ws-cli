@@ -197,6 +197,7 @@ class Cms(WSModule):
 
             time.sleep(1)
 
+        timeout_threads_count = 0
         while len(w_thrds):
             for worker in w_thrds:
                 if Registry().get('proxy_many_died'):
@@ -205,8 +206,49 @@ class Cms(WSModule):
                 if worker.done:
                     del w_thrds[w_thrds.index(worker)]
                 if int(time.time()) - worker.last_action > int(Registry().get('config')['main']['kill_thread_after_secs']):
-                    self.logger.log("Thread killed by time")
+                    self.logger.log(
+                        "Thread killed by time, resurected {0} times from {1}".format(
+                            timeout_threads_count,
+                            Registry().get('config')['main']['timeout_threads_resurect_max_count']
+                        )
+                    )
                     del w_thrds[w_thrds.index(worker)]
+
+                    if timeout_threads_count <= int(Registry().get('config')['main']['timeout_threads_resurect_max_count']):
+                        if self.options['selenium'].value:
+                            worker = SCmsThread(
+                                q,
+                                self.options['host'].value,
+                                self.options['url'].value,
+                                self.options['protocol'].value.lower(),
+                                self.options['method'].value.lower(),
+                                self.options['not-found-re'].value,
+                                self.options['delay'].value,
+                                self.options['ddos-detect-phrase'].value,
+                                self.options['ddos-human-action'].value,
+                                self.options['browser-recreate-re'].value,
+                                counter,
+                                result
+                            )
+                        else:
+                            worker = CmsThread(
+                                q,
+                                self.options['host'].value,
+                                self.options['url'].value,
+                                self.options['protocol'].value.lower(),
+                                self.options['method'].value.lower(),
+                                self.options['not-found-re'].value,
+                                self.options['not-found-codes'].value.lower(),
+                                self.options['delay'].value,
+                                counter,
+                                result
+                            )
+                        worker.setDaemon(True)
+                        worker.start()
+                        w_thrds.append(worker)
+
+                        timeout_threads_count += 1
+
             time.sleep(2)
 
         pid = Registry().get('pData')['id']

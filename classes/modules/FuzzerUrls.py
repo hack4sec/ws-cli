@@ -206,14 +206,51 @@ class FuzzerUrls(WSModule):
 
             time.sleep(1)
 
+        timeout_threads_count = 0
         while len(w_thrds):
             for worker in w_thrds:
                 if worker.done or Registry().get('proxy_many_died'):
                     del w_thrds[w_thrds.index(worker)]
 
                 if int(time.time()) - worker.last_action > int(Registry().get('config')['main']['kill_thread_after_secs']):
-                    self.logger.log("Thread killed by time")
+                    self.logger.log(
+                        "Thread killed by time, resurected {0} times from {1}".format(
+                            timeout_threads_count,
+                            Registry().get('config')['main']['timeout_threads_resurect_max_count']
+                        )
+                    )
                     del w_thrds[w_thrds.index(worker)]
+
+                    if timeout_threads_count <= int(Registry().get('config')['main']['timeout_threads_resurect_max_count']):
+                        if self.options['selenium'].value:
+                            worker = SFuzzerUrlsThread(
+                                q,
+                                self.options['host'].value,
+                                self.options['protocol'].value.lower(),
+                                self.options['method'].value.lower(),
+                                self.options['delay'].value,
+                                self.options['ddos-detect-phrase'].value,
+                                self.options['ddos-human-action'].value,
+                                self.options['browser-recreate-phrase'].value,
+                                counter,
+                                result
+                            )
+                        else:
+                            worker = FuzzerUrlsThread(
+                                q,
+                                self.options['host'].value,
+                                self.options['protocol'].value.lower(),
+                                self.options['method'].value.lower(),
+                                self.options['delay'].value,
+                                counter,
+                                result
+                            )
+                        worker.setDaemon(True)
+                        worker.start()
+                        w_thrds.append(worker)
+
+                        timeout_threads_count += 1
+
             time.sleep(2)
 
         if result:
