@@ -90,13 +90,6 @@ class DnsBruteDict(DnsBruteModules):
                 False,
                 ['--ignore-ip']
             ),
-            "http-protocol": WSOption(
-                "http-protocol",
-                "Protocol http or https (default - http)",
-                "http",
-                False,
-                ['--http-protocol']
-            ),
             "http-not-found-re": WSOption(
                 "http-not-found-re",
                 "Regex for detect 'Not found' response by domain name",

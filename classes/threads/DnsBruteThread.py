@@ -23,7 +23,7 @@ class DnsBruteThread(threading.Thread):
     """ Thread class for DnsBrute* modules """
     done = False
 
-    def __init__(self, queue, domain, proto, msymbol, ignore_ip, dns_srv, delay, http_proto, http_nf_re, result, counter):
+    def __init__(self, queue, domain, proto, msymbol, ignore_ip, dns_srv, delay, http_nf_re, result, counter):
         threading.Thread.__init__(self)
         self.queue = queue
         self.domain = domain
@@ -36,7 +36,6 @@ class DnsBruteThread(threading.Thread):
         self.done = False
         self.logger = Registry().get('logger')
         self.ignore_ip = ignore_ip
-        self.http_proto = http_proto
         self.http_nf_re = re.compile(http_nf_re) if len(http_nf_re) else None
 
     def run(self):
@@ -62,11 +61,19 @@ class DnsBruteThread(threading.Thread):
                         if not len(self.ignore_ip) or ip != self.ignore_ip:
                             if self.http_nf_re is not None:
                                 resp = requests.get(
-                                    "{0}://{1}/".format(self.http_proto, ip),
+                                    "http://{0}/".format(ip),
                                     headers={'Host': check_name},
                                     allow_redirects=False)
                                 if not self.http_nf_re.findall(resp.text):
                                     self.result.append({'name': check_name, 'ip': ip, 'dns': self.dns_srv})
+                                else:
+                                    resp = requests.get(
+                                        "https://{0}/".format(ip),
+                                        headers={'Host': check_name},
+                                        allow_redirects=False,
+                                        verify=False)
+                                    if not self.http_nf_re.findall(resp.text):
+                                        self.result.append({'name': check_name, 'ip': ip, 'dns': self.dns_srv})
                             else:
                                 self.result.append({'name': check_name, 'ip': ip, 'dns': self.dns_srv})
                         break

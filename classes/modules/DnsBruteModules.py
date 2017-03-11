@@ -101,7 +101,6 @@ class DnsBruteModules(WSModule):
                 self.options['ignore-ip'].value,
                 next_server,
                 self.options['delay'].value,
-                self.options['http-protocol'].value,
                 self.options['http-not-found-re'].value,
                 result,
                 counter
