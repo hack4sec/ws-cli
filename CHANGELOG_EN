@@ -1,3 +1,5 @@
+0.4 dev
+ In dns-modules (bruters) added params for http-requests to find domains --http-protocol and --http-not-found-re (see docs)
 0.3a
  Threads killed by time create new, but in limit with timeout_threads_resurect_max_count from config
  Content of positive items (dafs, form-brute, etc) loging always
