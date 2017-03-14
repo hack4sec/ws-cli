@@ -60,14 +60,14 @@ class DnsBruteThread(threading.Thread):
                     for ip in ip_re.findall(response.group('data')):
                         if not len(self.ignore_ip) or ip != self.ignore_ip:
                             if self.http_nf_re is not None:
-                                resp = requests.get(
+                                resp = Registry().get('http').get(
                                     "http://{0}/".format(ip),
                                     headers={'Host': check_name},
                                     allow_redirects=False)
                                 if not self.http_nf_re.findall(resp.text):
                                     self.result.append({'name': check_name, 'ip': ip, 'dns': self.dns_srv})
                                 else:
-                                    resp = requests.get(
+                                    resp = Registry().get('http').get(
                                         "https://{0}/".format(ip),
                                         headers={'Host': check_name},
                                         allow_redirects=False,
