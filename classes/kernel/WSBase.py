@@ -11,9 +11,10 @@ Kernel base class. Prepare work, load config, connect db, etc
 
 import sys
 import os
+import random
+
 import configparser
 import mysql.connector
-
 from pymongo import MongoClient
 import pymongo.errors
 from pyvirtualdisplay import Display
@@ -58,6 +59,7 @@ class WSBase(object):
         R.set('wr_path', os.getcwd())
         R.set('data_path', os.getcwd() + '/data/')
         R.set('http', Http())
+        R.set('ua', self.random_ua())
         R.set('proxies', Proxies())
         R.set(
             'ndb',
@@ -74,6 +76,13 @@ class WSBase(object):
             display = Display(visible=0, size=(800, 600))
             display.start()
             R.set('display', display)
+
+    def random_ua(self):
+        fh = open(Registry().get('wr_path') + "/bases/useragents.txt", 'r')
+        uas = fh.readlines()
+        fh.close()
+
+        return uas[random.randint(0, len(uas) - 1)].strip()
 
     def __my_import(self, name):
         """ Load need WS module """

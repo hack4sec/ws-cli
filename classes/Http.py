@@ -77,6 +77,9 @@ class Http(object):
         allow_redirects = self.allow_redirects if allow_redirects is None else allow_redirects
         headers = self.headers if headers is None else headers
 
+        if 'User-Agent' not in headers.keys():
+            headers['User-Agent'] = Registry().get('ua')
+
         resp = self.session.get(
             url,
             verify=verify,
@@ -129,6 +132,9 @@ class Http(object):
         allow_redirects = self.allow_redirects if allow_redirects is None else allow_redirects
         headers = self.headers if headers is None else headers
 
+        if 'User-Agent' not in headers.keys():
+            headers['User-Agent'] = Registry().get('ua')
+
         resp = self.session.post(
             url,
             data=data,
@@ -159,6 +165,9 @@ class Http(object):
         verify = self.verify if verify is None else verify
         allow_redirects = self.allow_redirects if allow_redirects is None else allow_redirects
         headers = self.headers if headers is None else headers
+
+        if 'User-Agent' not in headers.keys():
+            headers['User-Agent'] = Registry().get('ua')
 
         resp = self.session.head(
             url,
