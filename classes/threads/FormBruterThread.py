@@ -132,7 +132,7 @@ class FormBruterThread(threading.Thread):
             except Queue.Empty:
                 self.done = True
                 break
-            except ChunkedEncodingError:
+            except ChunkedEncodingError as e:
                 self.logger.ex(e)
             except BaseException as e:
                 try:
