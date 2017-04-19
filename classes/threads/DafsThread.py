@@ -35,20 +35,23 @@ class DafsThread(threading.Thread):
 
     def __init__(
             self, queue, protocol, host, url, method, mask_symbol, not_found_re,
-            not_found_codes, retest_codes, delay, counter, result):
+            not_found_size, not_found_codes, retest_codes, delay, counter, result):
         threading.Thread.__init__(self)
         self.retested_words = {}
 
         self.queue = queue
         self.protocol = protocol.lower()
         self.host = host
-        self.method = method if not (len(not_found_re) and method.lower() == 'head') else 'get'
         self.url = url
         self.mask_symbol = mask_symbol
         self.counter = counter
         self.result = result
         self.done = False
         self.not_found_re = False if not len(not_found_re) else re.compile(not_found_re)
+        self.not_found_size = int(not_found_size)
+        self.method = method if \
+            not ((len(not_found_re) or self.not_found_size != -1) and method.lower() == 'head') else \
+            'get'
 
         not_found_codes = not_found_codes.split(',')
         not_found_codes.append('404')
@@ -112,6 +115,7 @@ class DafsThread(threading.Thread):
 
                 positive_item = False
                 if resp is not None \
+                    and (self.not_found_size == -1 or self.not_found_size != len(resp.content)) \
                     and str(resp.status_code) not in self.not_found_codes \
                     and not (not binary_content and self.not_found_re and self.not_found_re.findall(resp.content)):
                     self.result.append({

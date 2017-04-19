@@ -27,15 +27,19 @@ class BackupsFinderThread(threading.Thread):
     counter = None
     last_action = 0
 
-    def __init__(self, queue, domain, protocol, method, not_found_re, not_found_codes, delay, counter, result):
+    def __init__(self, queue, domain, protocol, method, not_found_re, not_found_codes,
+                 not_found_size, delay, counter, result):
         threading.Thread.__init__(self)
         self.queue = queue
-        self.method = method if not (len(not_found_re) and method.lower() == 'head') else 'get'
         self.domain = domain
         self.result = result
         self.counter = counter
         self.protocol = protocol
         self.not_found_re = False if not len(not_found_re) else re.compile(not_found_re)
+        self.not_found_size = int(not_found_size)
+        self.method = method if \
+            not ((len(not_found_re) or self.not_found_size != -1) and method.lower() == 'head') else \
+            'get'
 
         not_found_codes = not_found_codes.split(',')
         not_found_codes.append('404')
@@ -74,7 +78,9 @@ class BackupsFinderThread(threading.Thread):
                 binary_content = resp is not None and is_binary_content_type(resp.headers['content-type'])
 
                 positive_item = False
-                if resp is not None and str(resp.status_code) not in self.not_found_codes \
+                if resp is not None \
+                    and (self.not_found_size == -1 or self.not_found_size != len(resp.content)) \
+                    and str(resp.status_code) not in self.not_found_codes \
                     and not (not binary_content and self.not_found_re and self.not_found_re.findall(resp.content)):
                     self.result.append(word)
                     positive_item = True

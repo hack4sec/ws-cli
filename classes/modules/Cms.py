@@ -84,6 +84,13 @@ class Cms(WSModule):
                 False,
                 ['--not-found-re']
             ),
+            "not-found-size": WSOption(
+                "not-found-size",
+                "Size in bytes for detect 'Not found' response (404)",
+                "-1",
+                False,
+                ['--not-found-size']
+            ),
             "not-found-codes": WSOption(
                 "not-found-codes",
                 "Custom codes for detect 'Not found' response (404)",
@@ -186,6 +193,7 @@ class Cms(WSModule):
                     self.options['protocol'].value.lower(),
                     self.options['method'].value.lower(),
                     self.options['not-found-re'].value,
+                    self.options['not-found-size'].value,
                     self.options['not-found-codes'].value.lower(),
                     self.options['delay'].value,
                     counter,

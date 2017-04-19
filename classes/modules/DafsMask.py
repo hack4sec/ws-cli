@@ -87,6 +87,13 @@ class DafsMask(DafsModules):
                 False,
                 ['--not-found-codes']
             ),
+            "not-found-size": WSOption(
+                "not-found-size",
+                "Size in bytes for detect 'Not found' response (404)",
+                "-1",
+                False,
+                ['--not-found-size']
+            ),
             "retest-codes": WSOption(
                 "retest-codes",
                 "Custom codes for re-test object after 5 sec",

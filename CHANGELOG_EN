@@ -1,4 +1,5 @@
 0.4 dev
+ Added option --not-found-size in BackupsFinder, Cms and Dafs* modules. Which mean response size analogue 'Not found 404' answer.
  IP can be added as host
  Random User-Agent for http-requests from bases/useragents.txt
  In dns-modules (bruters) added param for http-requests to find domains --http-not-found-re (see docs)

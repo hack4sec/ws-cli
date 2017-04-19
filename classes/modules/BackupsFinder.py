@@ -80,6 +80,13 @@ class BackupsFinder(WSModule):
                 False,
                 ['--not-found-codes']
             ),
+            "not-found-size": WSOption(
+                "not-found-size",
+                "Size in bytes for detect 'Not found' response (404)",
+                "-1",
+                False,
+                ['--not-found-size']
+            ),
             "delay": WSOption(
                 "delay",
                 "Deley for every thread between requests (secs)",
@@ -220,6 +227,7 @@ class BackupsFinder(WSModule):
                     self.options['protocol'].value.lower(),
                     self.options['method'].value.lower(),
                     self.options['not-found-re'].value,
+                    self.options['not-found-size'].value,
                     self.options['not-found-codes'].value.lower(),
                     self.options['delay'].value,
                     counter,

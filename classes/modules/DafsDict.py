@@ -83,6 +83,13 @@ class DafsDict(DafsModules):
                 False,
                 ['--not-found-re']
             ),
+            "not-found-size": WSOption(
+                "not-found-size",
+                "Size in bytes for detect 'Not found' response (404)",
+                "-1",
+                False,
+                ['--not-found-size']
+            ),
             "not-found-codes": WSOption(
                 "not-found-codes",
                 "Custom codes for detect 'Not found' response (404)",
