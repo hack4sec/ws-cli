@@ -43,8 +43,8 @@ class Hosts(WSModule):
 
     def validate_main(self):
         """ Check users params """
-        if not validate_host(self.options['host'].value):
-            raise WSException("'{0}' is not valid host name!".format(self.options['host'].value))
+        if not (validate_host(self.options['host'].value) or validate_ip(self.options['host'].value)):
+            raise WSException("'{0}' is not valid host name or ip!".format(self.options['host'].value))
         if 'ip' in self.options and self.options['ip'].value:
             if not validate_ip(self.options['ip'].value):
                 raise WSException("IP '{0}' is not valid ip-address!".format(self.options['ip'].value))
