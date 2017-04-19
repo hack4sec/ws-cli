@@ -75,6 +75,8 @@ class DafsThread(threading.Thread):
             try:
                 if not need_retest:
                     word = self.queue.get()
+                    if not len(word.strip()):
+                        continue
                     self.counter.up()
 
                 try:
