@@ -1,6 +1,7 @@
 0.4 dev
  Random User-Agent for http-requests from bases/useragents.txt
  In dns-modules (bruters) added param for http-requests to find domains --http-not-found-re (see docs)
+ Fixed bug with endless selenium browser creating when it impossible. Added option browser_recreate_errors_limit for this actions limit, and logging message with exceptions text.
 0.3a
  Threads killed by time create new, but in limit with timeout_threads_resurect_max_count from config
  Content of positive items (dafs, form-brute, etc) loging always

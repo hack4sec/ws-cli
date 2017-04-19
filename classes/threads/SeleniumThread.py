@@ -37,8 +37,11 @@ class SeleniumThread(threading.Thread):
             self.browser_create()
             self.requests_count = 0
 
-    def browser_create(self):
+    def browser_create(self, retry_counter = 0):
         """ Create a browser """
+        if retry_counter >= int(Registry().get('config')['selenium']['browser_recreate_errors_limit']):
+            raise Exception("WebDriver can`t create browser. Check errors log selenium settings.")
+
         self_num = random.randint(0, 99999)
 
         myProxy = Registry().get('proxies').get_proxy()
@@ -86,10 +89,16 @@ class SeleniumThread(threading.Thread):
                 proxy=proxy,
                 ddos_human=self.ddos_human,
             )
-        except WebDriverException:
+        except WebDriverException as e:
+            self.logger.ex(e)
+            self.logger.log("Re-trying. Browser creation error: " + str(e))
+
             shutil.rmtree(profile_path)
             time.sleep(5)
-            return self.browser_create()
+
+            retry_counter += 1
+
+            return self.browser_create(retry_counter)
 
         self.browser.set_page_load_timeout(Registry().get('config')['selenium']['timeout_page_load'])
         self.browser.implicitly_wait(Registry().get('config')['selenium']['timeout_page_load'])
