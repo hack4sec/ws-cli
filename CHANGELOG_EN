@@ -1,4 +1,5 @@
 0.4 dev
+ Config main.log_module_items are off by default
  Progress counter show now speed (o/s) not for all time (avg), but for time from last report string
  Fixed bug in DnsBrute* modules with progress counter and --parts param (counter always show all)
  Added config option main.put_data_into_db, which enable/disable data putting into DB in work whiles
