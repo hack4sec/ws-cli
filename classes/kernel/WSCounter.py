@@ -18,12 +18,15 @@ from libs.common import secs_to_text, nformat
 class WSCounter(object):
     """ Kernel class of work counter for all modules """
     counter = 0
+    last_point_time = 0
+    last_point_count = 0
 
     def __init__(self, point, new_str, _all=0):
         self.point = point
         self.new_str = new_str
         self.all = _all
         self.start_time = int(time.time())
+        self.last_point_time = int(time.time())
 
     def up(self):
         """ Up counter, print result if need """
@@ -47,8 +50,10 @@ class WSCounter(object):
                     round(self.counter/(self.all/100), 2),
                     secs_to_text(time_now),
                     secs_to_text(time_left),
-                    round(self.counter/time_now, 2)
+                    round((self.counter - self.last_point_count) / (int(time.time()) - self.last_point_time), 2) #round(self.counter/time_now, 2)
                 )
+                self.last_point_count = self.counter
+                self.last_point_time = int(time.time())
 
         sys.stdout.flush()
 
