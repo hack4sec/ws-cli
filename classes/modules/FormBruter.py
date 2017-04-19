@@ -373,7 +373,7 @@ class FormBruter(WSModule):
             time.sleep(2)
 
         if Registry().get('positive_limit_stop'):
-            self.logger.log("Many positive detections. Please, look items logs")
+            self.logger.log("\nMany positive detections. Please, look items logs")
             self.logger.log("Last items:")
             for i in range(1, 5):
                 print result[-i]
