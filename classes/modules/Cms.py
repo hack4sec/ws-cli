@@ -264,37 +264,54 @@ class Cms(WSModule):
         host_id = HostsModel().get_id_by_name(pid, self.options['host'].value)
         Urls = UrlsModel()
         UrlsBase = UrlsBaseModel()
+        if int(Registry().get('config')['main']['put_data_into_db']):
+            self.logger.log("\nInsert result info in DB...")
 
-        self.logger.log("\nInsert result info in DB...")
-
-        _all = 0
-        added = 0
-        HostsInfo = HostsInfoModel()
-        to_hosts_info = []
-        hash_ids = []
-        for link in result:
-            hash_ids.append(self.model.get_hash_id_by_path(link['path']))
-            _all += 1
-            if Urls.add(pid, host_id, link['path'], '', link['code'], 0, 'cms'):
-                added += 1
-            UrlsBase.add_url(host_id, link['path'])
-        self.logger.log("\nFound {0} URLs, inserted in database (new) - {1}.".format(_all, added))
-
-        cms_list = self.model.cms_list()
-        for cms_id in self.model.get_cms_by_hash_ids(hash_ids):
-            cms_paths = self.model.get_cms_paths(cms_id)
-
-            current_count = 0
+            _all = 0
+            added = 0
+            HostsInfo = HostsInfoModel()
+            to_hosts_info = []
+            hash_ids = []
             for link in result:
-                if link['path'] in cms_paths:
-                    current_count += 1
-            percent = int(current_count / len(cms_paths) * 100)
+                hash_ids.append(self.model.get_hash_id_by_path(link['path']))
+                _all += 1
+                if Urls.add(pid, host_id, link['path'], '', link['code'], 0, 'cms'):
+                    added += 1
+                UrlsBase.add_url(host_id, link['path'])
+            self.logger.log("\nFound {0} URLs, inserted in database (new) - {1}.".format(_all, added))
 
-            if int(Registry().get('config')['cms']['percent']) <= percent:
-                to_hosts_info.append({'name': cms_list[cms_id], 'percent': percent})
-                self.logger.log("{0}\t{1}%".format(cms_list[cms_id], percent))
+            cms_list = self.model.cms_list()
+            for cms_id in self.model.get_cms_by_hash_ids(hash_ids):
+                cms_paths = self.model.get_cms_paths(cms_id)
 
-        if len(to_hosts_info):
-            HostsInfo.set_info(pid, host_id, 'cms', json.dumps(to_hosts_info))
+                current_count = 0
+                for link in result:
+                    if link['path'] in cms_paths:
+                        current_count += 1
+                percent = int(current_count / len(cms_paths) * 100)
+
+                if int(Registry().get('config')['cms']['percent']) <= percent:
+                    to_hosts_info.append({'name': cms_list[cms_id], 'percent': percent})
+                    self.logger.log("{0}\t{1}%".format(cms_list[cms_id], percent))
+
+            if len(to_hosts_info):
+                HostsInfo.set_info(pid, host_id, 'cms', json.dumps(to_hosts_info))
+        else:
+            hash_ids = []
+            for link in result:
+                hash_ids.append(self.model.get_hash_id_by_path(link['path']))
+
+            cms_list = self.model.cms_list()
+            for cms_id in self.model.get_cms_by_hash_ids(hash_ids):
+                cms_paths = self.model.get_cms_paths(cms_id)
+
+                current_count = 0
+                for link in result:
+                    if link['path'] in cms_paths:
+                        current_count += 1
+                percent = int(current_count / len(cms_paths) * 100)
+
+                if int(Registry().get('config')['cms']['percent']) <= percent:
+                    self.logger.log("{0}\t{1}%".format(cms_list[cms_id], percent))
 
         self.done = True

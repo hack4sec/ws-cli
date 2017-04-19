@@ -269,19 +269,22 @@ class FuzzerUrls(WSModule):
                 fuzz['url'],
                 ", ".join(fuzz['words'])
             ))
-            _id = Requests.add(
-                project_id,
-                host_id,
-                urlparse(fuzz['url']).path,
-                urlparse(fuzz['url']).query,
-                {},
-                self.options['method'].value,
-                self.options['protocol'].value.lower(),
-                'fuzzer',
-                'Found word: {0}'.format(", ".join(fuzz['words']))
-            )
-            added += 1 if _id else 0
+
+            if int(Registry().get('config')['main']['put_data_into_db']):
+                _id = Requests.add(
+                    project_id,
+                    host_id,
+                    urlparse(fuzz['url']).path,
+                    urlparse(fuzz['url']).query,
+                    {},
+                    self.options['method'].value,
+                    self.options['protocol'].value.lower(),
+                    'fuzzer',
+                    'Found word: {0}'.format(", ".join(fuzz['words']))
+                )
+                added += 1 if _id else 0
 
         self.logger.log("Added {0} new requests in database".format(added))
+
 
         self.done = True

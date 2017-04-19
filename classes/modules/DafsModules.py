@@ -201,11 +201,15 @@ class DafsModules(WSModule):
                 print result[-i]
             exit(0)
 
-        self.logger.log("\nInsert links in DB...")
+        if int(Registry().get('config')['main']['put_data_into_db']):
+            self.logger.log("\nInsert links in DB...")
 
-        added = self._insert_urls(result)
-        for result_row in result:
-            self.logger.log("{0} {1}".format(result_row['code'], result_row['url']))
-        self.logger.log("\nFound {0} URLs, inserted in database (new) - {1}.".format(len(result), added))
+            added = self._insert_urls(result)
+            for result_row in result:
+                self.logger.log("{0} {1}".format(result_row['code'], result_row['url']))
+            self.logger.log("\nFound {0} URLs, inserted in database (new) - {1}.".format(len(result), added))
+        else:
+            for result_row in result:
+                self.logger.log("{0} {1}".format(result_row['code'], result_row['url']))
 
         self.done = True

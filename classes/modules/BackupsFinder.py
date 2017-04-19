@@ -302,20 +302,24 @@ class BackupsFinder(WSModule):
             print "\n",
             for item in result:
                 print item
-            self.logger.log("\nPut found into DB...")
 
-        Requests = RequestsModel()
-        Hosts = HostsModel()
-        project_id = Registry().get('pData')['id']
-        host_id = Hosts.get_id_by_name(project_id, self.options['host'].value)
-        added = 0
-        for backup in result:
-            _id = Requests.add(
-                project_id, host_id, backup, "", {}, self.options['method'].value,
-                self.options['protocol'].value.lower(), 'backups', 'May be important backup'
-            )
-            added += 1 if _id else 0
+        if int(Registry().get('config')['main']['put_data_into_db']):
+            if result:
+                self.logger.log("\nPut found into DB...")
+
+            Requests = RequestsModel()
+            Hosts = HostsModel()
+            project_id = Registry().get('pData')['id']
+            host_id = Hosts.get_id_by_name(project_id, self.options['host'].value)
+            added = 0
+            for backup in result:
+                _id = Requests.add(
+                    project_id, host_id, backup, "", {}, self.options['method'].value,
+                    self.options['protocol'].value.lower(), 'backups', 'May be important backup'
+                )
+                added += 1 if _id else 0
 
         self.logger.log("Found backups: {0}, new: {1}".format(len(result), added))
         self.logger.log(str(result), _print=False)
+
         self.done = True

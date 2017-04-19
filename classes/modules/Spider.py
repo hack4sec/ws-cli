@@ -217,11 +217,14 @@ class Spider(WSModule):
         while not self.kernel.finished():
             time.sleep(2)
 
-        self.logger.log("\nPut results into DB...")
-        SpiderCommon.links_in_database(
-            Registry().get('pData')['id'],
-            self.options['host'].value
-        )
+        if int(Registry().get('config')['main']['put_data_into_db']):
+            self.logger.log("\nPut results into DB...")
+            SpiderCommon.links_in_database(
+                Registry().get('pData')['id'],
+                self.options['host'].value
+            )
+        else:
+            self.logger.log("\nResults NOT put into DB")
 
         self.logger.log("\nTotal links count: " + str(Registry().get('mongo').spider_urls.count()))
         self.logger.log(str(self.result))

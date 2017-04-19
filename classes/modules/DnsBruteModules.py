@@ -135,7 +135,7 @@ class DnsBruteModules(WSModule):
         for host in uniq_hosts:
             self.logger.log("\t" + host)
 
-        if not Registry().get('positive_limit_stop'):
+        if not Registry().get('positive_limit_stop') and int(Registry().get('config')['main']['put_data_into_db']):
             self.logger.log("Put found hosts into DB...")
             added = self._insert_hosts(result)
 
