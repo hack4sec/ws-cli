@@ -61,7 +61,7 @@ class DnsBruteModules(WSModule):
         loaded = self.load_objects(q)
         self.logger.log("Loaded {0} words from dict.".format(loaded['all']))
 
-        counter = WSCounter(5, 300, loaded['all'])
+        counter = WSCounter(5, 300, loaded['all'] if not loaded['end'] else loaded['end']-loaded['start'])
 
         result = []
 
