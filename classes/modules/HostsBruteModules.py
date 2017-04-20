@@ -81,9 +81,9 @@ class HostsBruteModules(WSModule):
         loaded = self.load_objects(q)
 
         self.logger.log(
-            "Loaded {0} words from dict ({1}-{2}).".format(loaded['all'], loaded['start'], loaded['end'])
+            "Loaded {0} words from source ({1}-{2}).".format(loaded['all'], loaded['start'], loaded['end'])
             if (int(self.options['parts'].value) and int(self.options['part'].value)) else
-            "Loaded {0} words from dict.".format(loaded['all'])
+            "Loaded {0} words from source.".format(loaded['all'])
         )
 
         counter = WSCounter(5, 300, loaded['all'] if not loaded['end'] else loaded['end']-loaded['start'])
