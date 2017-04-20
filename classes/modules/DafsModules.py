@@ -209,6 +209,7 @@ class DafsModules(WSModule):
                 self.logger.log("{0} {1}".format(result_row['code'], result_row['url']))
             self.logger.log("\nFound {0} URLs, inserted in database (new) - {1}.".format(len(result), added))
         else:
+            self.logger.log("\n")
             for result_row in result:
                 self.logger.log("{0} {1}".format(result_row['code'], result_row['url']))
 
