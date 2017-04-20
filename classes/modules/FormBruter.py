@@ -258,7 +258,8 @@ class FormBruter(WSModule):
         loaded = self.load_objects(q)
 
         self.logger.log(
-            "Loaded {0} words from source ({1}-{2}).".format(loaded['all'], loaded['start'], loaded['end'])
+            "Loaded {0} words ({1}-{2}) from all {3}.".format(
+                (loaded['end'] - loaded['start']), loaded['start'], loaded['end'], loaded['all'])
             if (int(self.options['parts'].value) and int(self.options['part'].value)) else
             "Loaded {0} words from source.".format(loaded['all'])
         )
