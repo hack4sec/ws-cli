@@ -40,6 +40,13 @@ class DnsBruteDict(DnsBruteModules):
                 True,
                 ['--host']
             ),
+            "template": WSOption(
+                "template",
+                "Template for brute",
+                "",
+                True,
+                ['--template']
+            ),
             "protocol": WSOption(
                 "protocol",
                 "TCP or UDP connection to DNS server (default - auto)",

@@ -60,8 +60,8 @@ class DafsModules(WSModule):
         """ Check users params """
         super(DafsModules, self).validate_main()
 
-        if self.options['url'].value[0] != '/':
-            raise WSException("URL must start from the root ('/') !")
+        if self.options['template'].value[0] != '/':
+            raise WSException("Template must start from the root ('/') !")
 
     def scan_action(self):
         """ Scan action of module """
@@ -72,10 +72,10 @@ class DafsModules(WSModule):
         if self.options['proxies'].value:
             Registry().get('proxies').load(self.options['proxies'].value)
 
-        if self.options['url'].value.find(self.options['msymbol'].value) == -1:
+        if self.options['template'].value.find(self.options['msymbol'].value) == -1:
             raise WSException(
                 "Symbol of object position ({0}) not found in URL ({1}) ".
-                format(self.options['msymbol'].value, self.options['url'].value)
+                format(self.options['msymbol'].value, self.options['template'].value)
             )
 
         result = []
@@ -99,7 +99,7 @@ class DafsModules(WSModule):
                     q,
                     self.options['protocol'].value,
                     self.options['host'].value,
-                    self.options['url'].value,
+                    self.options['template'].value,
                     self.options['method'].value.lower(),
                     self.options['msymbol'].value,
                     self.options['not-found-re'].value,
@@ -115,7 +115,7 @@ class DafsModules(WSModule):
                     q,
                     self.options['protocol'].value,
                     self.options['host'].value,
-                    self.options['url'].value,
+                    self.options['template'].value,
                     self.options['method'].value.lower(),
                     self.options['msymbol'].value,
                     self.options['not-found-re'].value,
@@ -160,7 +160,7 @@ class DafsModules(WSModule):
                                 q,
                                 self.options['protocol'].value,
                                 self.options['host'].value,
-                                self.options['url'].value,
+                                self.options['template'].value,
                                 self.options['method'].value.lower(),
                                 self.options['msymbol'].value,
                                 self.options['not-found-re'].value,
@@ -176,7 +176,7 @@ class DafsModules(WSModule):
                                 q,
                                 self.options['protocol'].value,
                                 self.options['host'].value,
-                                self.options['url'].value,
+                                self.options['template'].value,
                                 self.options['method'].value.lower(),
                                 self.options['msymbol'].value,
                                 self.options['not-found-re'].value,

@@ -34,16 +34,20 @@ class DnsBruteModules(WSModule):
 
     def validate_main(self):
         """ Check users params """
+        if 'host' in self.options.keys() and \
+                not HostsModel().exists(Registry().get('pData')['id'], self.options['host'].value):
+            raise WSException("Host '{0}' not found in this project!".format(self.options['host'].value))
+
         if self.options['protocol'].value not in ['tcp', 'udp', 'auto']:
             raise WSException(
                 "Protocol mast be 'tcp', 'udp' or 'auto', but it is '{0}'"
                 .format(self.options['protocol'].value)
             )
 
-        if not self.options['host'].value.count(self.options['msymbol'].value):
+        if not self.options['template'].value.count(self.options['msymbol'].value):
             raise WSException(
-                "Host template must contains msymbol ({0}), but it not ({1})"
-                .format(self.options['msymbol'].value, self.options['host'].value)
+                "Brute template must contains msymbol ({0}), but it not ({1})"
+                .format(self.options['msymbol'].value, self.options['template'].value)
             )
 
     def load_objects(self, queue):
@@ -60,7 +64,6 @@ class DnsBruteModules(WSModule):
 
         loaded = self.load_objects(q)
         self.logger.log("Loaded {0} words from dict.".format(loaded['all']))
-
         counter = WSCounter(5, 300, loaded['all'] if not loaded['end'] else loaded['end']-loaded['start'])
 
         result = []
@@ -96,6 +99,7 @@ class DnsBruteModules(WSModule):
             worker = DnsBruteThread(
                 q,
                 self.options['host'].value,
+                self.options['template'].value,
                 protocol,
                 self.options['msymbol'].value,
                 self.options['ignore-ip'].value,

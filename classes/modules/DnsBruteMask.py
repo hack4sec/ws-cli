@@ -38,6 +38,13 @@ class DnsBruteMask(DnsBruteModules):
                 True,
                 ['--host']
             ),
+            "template": WSOption(
+                "template",
+                "Template for brute",
+                "",
+                True,
+                ['--template']
+            ),
             "protocol": WSOption(
                 "proto",
                 "TCP or UDP connection to DNS server (default - auto)",

@@ -40,16 +40,16 @@ class DafsDict(DafsModules):
                 True,
                 ['--host']
             ),
-            "url": WSOption(
-                "url",
-                "Target URL (from root)",
+            "template": WSOption(
+                "template",
+                "Template for scan",
                 "",
                 True,
-                ['--url']
+                ['--template']
             ),
             "msymbol": WSOption(
                 "msymbol",
-                "Symbol of mask position in target URL (default {0})"
+                "Symbol of mask position in target template (default {0})"
                 .format(Registry().get('config')['main']['standart_msymbol']),
                 Registry().get('config')['main']['standart_msymbol'],
                 False,

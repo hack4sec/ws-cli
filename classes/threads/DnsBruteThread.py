@@ -23,7 +23,7 @@ class DnsBruteThread(threading.Thread):
     """ Thread class for DnsBrute* modules """
     done = False
 
-    def __init__(self, queue, domain, proto, msymbol, ignore_ip, dns_srv, delay, http_nf_re, result, counter):
+    def __init__(self, queue, domain, template, proto, msymbol, ignore_ip, dns_srv, delay, http_nf_re, result, counter):
         threading.Thread.__init__(self)
         self.queue = queue
         self.domain = domain
@@ -31,6 +31,7 @@ class DnsBruteThread(threading.Thread):
         self.dns_srv = dns_srv
         self.counter = counter
         self.msymbol = msymbol
+        self.template = template
         self.result = result
         self.delay = int(delay)
         self.done = False
@@ -46,7 +47,6 @@ class DnsBruteThread(threading.Thread):
         req_func = getattr(dns.query, self.proto.lower())
 
         while True:
-            host = None
             if self.delay:
                 time.sleep(self.delay)
             try:
@@ -55,7 +55,7 @@ class DnsBruteThread(threading.Thread):
                     continue
 
                 self.counter.up()
-                check_name = self.domain.replace(self.msymbol, host)
+                check_name = self.template.replace(self.msymbol, host) + '.' + self.domain
                 query = dns.message.make_query(check_name, 'A')
                 result = req_func(query, self.dns_srv, timeout=5)
                 response = ns_resp_re.search(result.to_text())

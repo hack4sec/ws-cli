@@ -26,7 +26,7 @@ class DafsThread(threading.Thread):
     """ Thread class for Dafs modules """
     queue = None
     method = None
-    url = None
+    template = None
     mask_symbol = None
     counter = None
     retested_words = None
@@ -34,7 +34,7 @@ class DafsThread(threading.Thread):
     retest_limit = int(Registry().get('config')['dafs']['retest_limit'])
 
     def __init__(
-            self, queue, protocol, host, url, method, mask_symbol, not_found_re,
+            self, queue, protocol, host, template, method, mask_symbol, not_found_re,
             not_found_size, not_found_codes, retest_codes, delay, counter, result):
         threading.Thread.__init__(self)
         self.retested_words = {}
@@ -42,7 +42,7 @@ class DafsThread(threading.Thread):
         self.queue = queue
         self.protocol = protocol.lower()
         self.host = host
-        self.url = url
+        self.template = template
         self.mask_symbol = mask_symbol
         self.counter = counter
         self.result = result
@@ -83,7 +83,7 @@ class DafsThread(threading.Thread):
                     self.counter.up()
 
                 try:
-                    url = self.url.replace(self.mask_symbol, word)
+                    url = self.template.replace(self.mask_symbol, word)
                 except UnicodeDecodeError:
                     self.logger.log(
                         "URL build error (UnicodeDecodeError) with word '{0}', skip it".format(pprint.pformat(word)),

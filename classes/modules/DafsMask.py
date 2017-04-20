@@ -37,12 +37,12 @@ class DafsMask(DafsModules):
                 True,
                 ['--host']
             ),
-            "url": WSOption(
-                "url",
-                "Target URL (from root)",
+            "template": WSOption(
+                "template",
+                "Template for scan",
                 "",
                 True,
-                ['--url']
+                ['--template']
             ),
             "msymbol": WSOption(
                 "msymbol",

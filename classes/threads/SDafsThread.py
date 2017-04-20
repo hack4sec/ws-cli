@@ -23,13 +23,13 @@ class SDafsThread(SeleniumThread):
     """ Thread class for Dafs modules (selenium) """
     queue = None
     method = None
-    url = None
+    template = None
     mask_symbol = None
     counter = None
     last_action = 0
 
     def __init__(
-            self, queue, protocol, host, url, method, mask_symbol, not_found_re,
+            self, queue, protocol, host, template, method, mask_symbol, not_found_re,
             delay, ddos_phrase, ddos_human, recreate_re, counter, result
     ):
         super(SDafsThread, self).__init__()
@@ -37,7 +37,7 @@ class SDafsThread(SeleniumThread):
         self.protocol = protocol.lower()
         self.host = host
         self.method = method if not (len(not_found_re) and method.lower() == 'head') else 'get'
-        self.url = url
+        self.template = template
         self.mask_symbol = mask_symbol
         self.counter = counter
         self.result = result
@@ -72,7 +72,7 @@ class SDafsThread(SeleniumThread):
                     self.counter.up()
 
                 try:
-                    url = self.url.replace(self.mask_symbol, word)
+                    url = self.template.replace(self.mask_symbol, word)
                 except UnicodeDecodeError:
                     self.logger.log(
                         "URL build error (UnicodeDecodeError) with word '{0}', skip it".format(pprint.pformat(word)),

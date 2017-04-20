@@ -1,4 +1,5 @@
 0.4 dev
+ In Dafs* and DnsBrute* modules now template setting in param --template, not --host or --url
  Param --headers-file added in all modules which works with HTTP (see docs)
  Config main.log_module_items are off by default
  Progress counter show now speed (o/s) not for all time (avg), but for time from last report string

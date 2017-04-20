@@ -76,6 +76,13 @@ class DnsBruteCombine(DnsBruteModules):
                 True,
                 ['--combine-template']
             ),
+            "template": WSOption(
+                "template",
+                "Template for brute",
+                "",
+                True,
+                ['--template']
+            ),
             "delay": WSOption(
                 "delay",
                 "Deley for every thread between requests (secs)",
