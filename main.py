@@ -81,6 +81,12 @@ args = vars(parser.parse_args(sys.argv[4:]))
 for option in args.keys():
     if args[option] is not None:
         module.options[option].value = args[option].strip()
+    if option == 'headers-file':
+        try:
+            Registry().get('http').load_headers_from_file(args[option].strip())
+        except WSException as e:
+            print "{0}".format(str(e))
+            exit(0)
 
 try:
     module.run(action)

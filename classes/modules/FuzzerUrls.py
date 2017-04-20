@@ -109,6 +109,13 @@ class FuzzerUrls(WSModule):
                 False,
                 ['--selenium']
             ),
+            "headers-file": WSOption(
+                "headers-file",
+                "File with list of HTTP headers",
+                "",
+                False,
+                ['--headers-file']
+            ),
         },
     }
 

@@ -9,9 +9,11 @@ Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pr
 Class for common HTTP work
 """
 
+import re
+import os
 import requests
 from classes.Registry import Registry
-
+from classes.kernel.WSException import WSException
 
 class HttpMaxSizeException(BaseException):
     """ Exception class for max-size error """
@@ -34,12 +36,25 @@ class Http(object):
     every_request_new_session = False
 
     def __init__(self, verify=False, allow_redirects=False, headers=None):
-        #self.errors = {'maxsize': [], 'noscan_content_types': [], 'scan_content_types': []}
-        self.headers = {}
         self.verify = verify
         self.allow_redirects = allow_redirects
         self.headers = {} if headers is None else headers
         self.session = requests.Session()
+
+    def load_headers_from_file(self, _file):
+        if not os.path.exists(_file):
+            raise WSException("File '{0}' not exists".format(_file))
+
+        header_regex = re.compile('([a-zA-Z0-9\-]*): (.*)')
+        fh = open(_file, 'r')
+        for line in fh:
+            try:
+                if len(line.strip()):
+                    parsed_header = header_regex.findall(line)[0]
+                    self.headers[parsed_header[0]] = parsed_header[1]
+            except BaseException:
+                raise WSException("Wrong header line '{0}'".format(line.strip()))
+        fh.close()
 
     def set_allowed_types(self, types):
         """ Set allowed contnent types """

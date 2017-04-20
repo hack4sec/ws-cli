@@ -109,6 +109,13 @@ class HostsBruteDict(HostsBruteModules):
                 True,
                 ['--template']
             ),
+            "headers-file": WSOption(
+                "headers-file",
+                "File with list of HTTP headers",
+                "",
+                False,
+                ['--headers-file']
+            ),
         },
     }
 

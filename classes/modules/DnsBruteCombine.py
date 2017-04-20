@@ -111,6 +111,13 @@ class DnsBruteCombine(DnsBruteModules):
                 False,
                 ['--http-not-found-re']
             ),
+            "headers-file": WSOption(
+                "headers-file",
+                "File with list of HTTP headers",
+                "",
+                False,
+                ['--headers-file']
+            ),
         },
     }
 

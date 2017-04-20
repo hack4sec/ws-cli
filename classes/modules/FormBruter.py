@@ -183,6 +183,13 @@ class FormBruter(WSModule):
                 True,
                 ['--login']
             ),
+            "headers-file": WSOption(
+                "headers-file",
+                "File with list of HTTP headers",
+                "",
+                False,
+                ['--headers-file']
+            ),
         },
     }
 
