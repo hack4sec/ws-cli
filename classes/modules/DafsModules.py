@@ -108,6 +108,7 @@ class DafsModules(WSModule):
                     self.options['ddos-detect-phrase'].value,
                     self.options['ddos-human-action'].value,
                     self.options['browser-recreate-re'].value,
+                    self.options['ignore-words-re'].value,
                     counter,
                     result
                 )
@@ -124,6 +125,7 @@ class DafsModules(WSModule):
                     self.options['not-found-codes'].value.lower(),
                     self.options['retest-codes'].value.lower(),
                     self.options['delay'].value,
+                    self.options['ignore-words-re'].value,
                     counter,
                     result
                 )

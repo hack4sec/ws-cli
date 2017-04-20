@@ -83,6 +83,13 @@ class DnsBruteCombine(DnsBruteModules):
                 True,
                 ['--template']
             ),
+            "ignore-words-re": WSOption(
+                "ignore-words-re",
+                "Regex for ignore some words from dict or mask",
+                "",
+                False,
+                ['--ignore-words-re']
+            ),
             "delay": WSOption(
                 "delay",
                 "Deley for every thread between requests (secs)",

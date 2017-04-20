@@ -76,6 +76,13 @@ class DnsBruteDict(DnsBruteModules):
                 False,
                 ['--delay']
             ),
+            "ignore-words-re": WSOption(
+                "ignore-words-re",
+                "Regex for ignore some words from dict or mask",
+                "",
+                False,
+                ['--ignore-words-re']
+            ),
             "parts": WSOption(
                 "parts",
                 "How many parts will be create from current source (dict/mask)",

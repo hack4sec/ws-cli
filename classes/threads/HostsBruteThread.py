@@ -14,6 +14,7 @@ import Queue
 import time
 import copy
 import pprint
+import re
 
 from requests.exceptions import ChunkedEncodingError, ConnectionError
 
@@ -33,7 +34,7 @@ class HostsBruteThread(threading.Thread):
 
     def __init__(
             self, queue, protocol, host, template, mask_symbol,
-            false_phrase, retest_codes, delay, counter, result):
+            false_phrase, retest_codes, delay, ignore_words_re, counter, result):
         threading.Thread.__init__(self)
         self.retested_words = {}
 
@@ -56,6 +57,8 @@ class HostsBruteThread(threading.Thread):
 
         self.method = 'get'
 
+        self.ignore_words_re = False if not len(ignore_words_re) else re.compile(ignore_words_re)
+
     def run(self):
         """ Run thread """
         req_func = getattr(self.http, self.method)
@@ -72,6 +75,9 @@ class HostsBruteThread(threading.Thread):
                 if not need_retest:
                     word = self.queue.get()
                     self.counter.up()
+
+                if not len(word.strip()) or (self.ignore_words_re and self.ignore_words_re.findall(word)):
+                    continue
 
                 try:
                     hostname = self.template.replace(self.mask_symbol, word)

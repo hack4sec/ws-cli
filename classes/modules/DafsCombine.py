@@ -110,6 +110,13 @@ class DafsCombine(DafsModules):
                 False,
                 ['--not-found-codes']
             ),
+            "ignore-words-re": WSOption(
+                "ignore-words-re",
+                "Regex for ignore some words from dict or mask",
+                "",
+                False,
+                ['--ignore-words-re']
+            ),
             "retest-codes": WSOption(
                 "retest-codes",
                 "Custom codes for re-test object after 5 sec",

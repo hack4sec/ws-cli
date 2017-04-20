@@ -111,6 +111,7 @@ class DnsBruteModules(WSModule):
                 next_server,
                 self.options['delay'].value,
                 self.options['http-not-found-re'].value,
+                self.options['ignore-words-re'].value,
                 result,
                 counter
             )

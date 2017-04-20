@@ -116,6 +116,13 @@ class HostsBruteMask(HostsBruteModules):
                 False,
                 ['--headers-file']
             ),
+            "ignore-words-re": WSOption(
+                "ignore-words-re",
+                "Regex for ignore some words from dict or mask",
+                "",
+                False,
+                ['--ignore-words-re']
+            ),
         },
     }
 

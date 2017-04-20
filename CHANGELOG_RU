@@ -1,4 +1,5 @@
 0.4 dev
+ В модули Dafs*, DnsBrute* и HostsBrute* добавлен параметр --ignore-words-re для исключения определённых слов из маски или словаря
  В модулях Dafs* и DnsBrute* шаблон для перебора теперь задаётся параметром --template, не --host или --url
  Во все модули работающие с HTTP добавлен параметр --headers-file (см. документацию)
  Опиця main.log_module_items в config.ini по-умолчанию выключена

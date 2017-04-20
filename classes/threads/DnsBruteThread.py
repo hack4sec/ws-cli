@@ -23,7 +23,7 @@ class DnsBruteThread(threading.Thread):
     """ Thread class for DnsBrute* modules """
     done = False
 
-    def __init__(self, queue, domain, template, proto, msymbol, ignore_ip, dns_srv, delay, http_nf_re, result, counter):
+    def __init__(self, queue, domain, template, proto, msymbol, ignore_ip, dns_srv, delay, http_nf_re, ignore_words_re, result, counter):
         threading.Thread.__init__(self)
         self.queue = queue
         self.domain = domain
@@ -38,6 +38,7 @@ class DnsBruteThread(threading.Thread):
         self.logger = Registry().get('logger')
         self.ignore_ip = ignore_ip
         self.http_nf_re = re.compile(http_nf_re) if len(http_nf_re) else None
+        self.ignore_words_re = False if not len(ignore_words_re) else re.compile(ignore_words_re)
 
     def run(self):
         """ Run thread """
@@ -51,7 +52,7 @@ class DnsBruteThread(threading.Thread):
                 time.sleep(self.delay)
             try:
                 host = self.queue.get()
-                if not len(host.strip()):
+                if not len(host.strip()) or (self.ignore_words_re and self.ignore_words_re.findall(host)):
                     continue
 
                 self.counter.up()

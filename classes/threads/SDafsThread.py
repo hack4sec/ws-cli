@@ -30,7 +30,7 @@ class SDafsThread(SeleniumThread):
 
     def __init__(
             self, queue, protocol, host, template, method, mask_symbol, not_found_re,
-            delay, ddos_phrase, ddos_human, recreate_re, counter, result
+            delay, ddos_phrase, ddos_human, recreate_re, ignore_words_re, counter, result
     ):
         super(SDafsThread, self).__init__()
         self.queue = queue
@@ -48,6 +48,7 @@ class SDafsThread(SeleniumThread):
         self.delay = int(delay)
         self.ddos_phrase = ddos_phrase
         self.ddos_human = ddos_human
+        self.ignore_words_re = False if not len(ignore_words_re) else re.compile(ignore_words_re)
 
         Registry().set('url_for_proxy_check', "{0}://{1}".format(protocol, host))
 
@@ -67,7 +68,7 @@ class SDafsThread(SeleniumThread):
             try:
                 if not need_retest:
                     word = self.queue.get()
-                    if not len(word.strip()):
+                    if not len(word.strip()) or (self.ignore_words_re and self.ignore_words_re.findall(word)):
                         continue
                     self.counter.up()
 

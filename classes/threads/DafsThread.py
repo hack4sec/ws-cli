@@ -32,10 +32,12 @@ class DafsThread(threading.Thread):
     retested_words = None
     last_action = 0
     retest_limit = int(Registry().get('config')['dafs']['retest_limit'])
+    ignore_words_re = None
 
     def __init__(
             self, queue, protocol, host, template, method, mask_symbol, not_found_re,
-            not_found_size, not_found_codes, retest_codes, delay, counter, result):
+            not_found_size, not_found_codes, retest_codes, delay, ignore_words_re,
+            counter, result):
         threading.Thread.__init__(self)
         self.retested_words = {}
 
@@ -47,6 +49,7 @@ class DafsThread(threading.Thread):
         self.counter = counter
         self.result = result
         self.done = False
+        self.ignore_words_re = False if not len(ignore_words_re) else re.compile(ignore_words_re)
         self.not_found_re = False if not len(not_found_re) else re.compile(not_found_re)
         self.not_found_size = int(not_found_size)
         self.method = method if \
@@ -78,7 +81,7 @@ class DafsThread(threading.Thread):
             try:
                 if not need_retest:
                     word = self.queue.get()
-                    if not len(word.strip()):
+                    if not len(word.strip()) or (self.ignore_words_re and self.ignore_words_re.findall(word)):
                         continue
                     self.counter.up()
 

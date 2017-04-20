@@ -100,6 +100,7 @@ class HostsBruteModules(WSModule):
                 self.options['false-phrase'].value,
                 self.options['retest-codes'].value.lower(),
                 self.options['delay'].value,
+                self.options['ignore-words-re'].value,
                 counter,
                 result
             )
