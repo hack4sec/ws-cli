@@ -26,6 +26,7 @@ class FuzzerHeadersThread(threading.Thread):
     method = None
     url = None
     counter = None
+    last_action = 0
 
     def __init__(self, queue, domain, protocol, method, delay, counter, result):
         threading.Thread.__init__(self)
@@ -50,6 +51,8 @@ class FuzzerHeadersThread(threading.Thread):
         need_retest = False
 
         while True:
+            self.last_action = int(time.time())
+
             if self.delay:
                 time.sleep(self.delay)
             try:
