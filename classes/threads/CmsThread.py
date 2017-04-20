@@ -92,11 +92,18 @@ class CmsThread(threading.Thread):
                     continue
                 binary_content = resp is not None and is_binary_content_type(resp.headers['content-type'])
 
+                response_headers_text = ''
+                for header in resp.headers:
+                    response_headers_text += '{0}: {1}\r\n'.format(header, resp.headers[header])
+
                 positive_item = False
                 if resp is not None \
                     and (self.not_found_size == -1 or self.not_found_size != len(resp.content)) \
                     and str(resp.status_code) not in(self.not_found_codes) \
-                    and not (not binary_content and self.not_found_re and self.not_found_re.findall(resp.content)):
+                    and not (not binary_content and self.not_found_re and (
+                                    self.not_found_re.findall(resp.content) or
+                                    self.not_found_re.findall(response_headers_text)
+                        )):
                     self.result.append({
                         'path': path,
                         'code': resp.status_code,
