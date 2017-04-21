@@ -31,7 +31,7 @@ class SFormBruterThread(SeleniumThread):
 
     def __init__(
             self, queue, protocol, host, url, false_phrase, true_phrase, delay, ddos_phrase, ddos_human,
-            recreate_phrase, conffile, first_stop, login, #reload_form_page,
+            recreate_phrase, conffile, first_stop, login, pass_min_len, pass_max_len, #reload_form_page,
             pass_found, counter, result
     ):
         super(SFormBruterThread, self).__init__()
@@ -53,6 +53,8 @@ class SFormBruterThread(SeleniumThread):
         self.pass_found = pass_found
         self.logger = Registry().get('logger')
         #self.reload_form_page = int(reload_form_page)
+        self.pass_min_len = int(pass_min_len)
+        self.pass_max_len = int(pass_max_len)
 
         self.browser_create()
 
@@ -106,6 +108,10 @@ class SFormBruterThread(SeleniumThread):
                 if not need_retest:
                     word = self.queue.get()
                     self.counter.up()
+
+                if (self.pass_min_len and len(word) < self.pass_min_len) or \
+                        (self.pass_max_len and len(word) > self.pass_max_len):
+                    continue
 
                 #if self.reload_form_page or \
                     #    (not self.browser.element_exists(By.CSS_SELECTOR, brute_conf['^USER^']) or

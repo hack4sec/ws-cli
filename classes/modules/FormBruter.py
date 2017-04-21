@@ -190,6 +190,20 @@ class FormBruter(WSModule):
                 False,
                 ['--headers-file']
             ),
+            "pass-min-len": WSOption(
+                "pass-min-len",
+                "Password min length",
+                "0",
+                False,
+                ['--pass-min-len']
+            ),
+            "pass-max-len": WSOption(
+                "pass-max-len",
+                "Password max length",
+                "0",
+                False,
+                ['--pass-max-len']
+            ),
         },
     }
 
@@ -284,6 +298,9 @@ class FormBruter(WSModule):
                     self.options['conffile'].value,
                     self.options['first-stop'].value.lower(),
                     self.options['login'].value,
+                    self.options['pass-min-len'].value,
+                    self.options['pass-max-len'].value,
+                    self.options['login'].value,
                     #self.options['reload-form-page'].value.lower(),
                     pass_found,
                     counter,
@@ -302,6 +319,8 @@ class FormBruter(WSModule):
                     self.options['confstr'].value,
                     self.options['first-stop'].value.lower(),
                     self.options['login'].value,
+                    self.options['pass-min-len'].value,
+                    self.options['pass-max-len'].value,
                     pass_found,
                     counter,
                     result

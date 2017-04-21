@@ -33,7 +33,7 @@ class FormBruterThread(threading.Thread):
 
     def __init__(
             self, queue, protocol, host, url, false_phrase, true_phrase, retest_codes, delay,
-            confstr, first_stop, login, pass_found, counter, result
+            confstr, first_stop, login, pass_min_len, pass_max_len, pass_found, counter, result
     ):
         threading.Thread.__init__(self)
         self.retested_words = {}
@@ -55,6 +55,8 @@ class FormBruterThread(threading.Thread):
         self.logger = Registry().get('logger')
         self.http = copy.deepcopy(Registry().get('http'))
         self.http.every_request_new_session = True
+        self.pass_min_len = int(pass_min_len)
+        self.pass_max_len = int(pass_max_len)
 
     def _make_conf_from_str(self, confstr):
         result = {}
@@ -90,6 +92,10 @@ class FormBruterThread(threading.Thread):
                 if not need_retest:
                     word = self.queue.get()
                     self.counter.up()
+
+                if (self.pass_min_len and len(word) < self.pass_min_len) or \
+                        (self.pass_max_len and len(word) > self.pass_max_len):
+                    continue
 
                 work_conf = self._fill_conf(dict(conf), self.login, word)
                 try:
