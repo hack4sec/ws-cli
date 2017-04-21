@@ -1,4 +1,6 @@
 0.4 dev
+ Added --min-pass-len and --max-pass-len params in FormBruter
+ positive_limit_stop now work in Cms module
  Threads of FuzzerHeaders module now has a timeout from last action for force kill (how in other http-modules) (insuranse from thread hovering)
  Param --not-found-re (Dafs*, Cms, BaskupsFinder modules) now work with response headers too
  In Dafs*, DnsBrute* and HostsBrute* modules added param --ignore-words-re for ignore some words from mask or dict
