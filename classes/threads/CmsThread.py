@@ -117,6 +117,9 @@ class CmsThread(threading.Thread):
                     positive=positive_item
                 )
 
+                if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']) * 2:
+                    Registry().set('positive_limit_stop', True)
+
                 self.counter.up()
 
                 self.queue.task_done()

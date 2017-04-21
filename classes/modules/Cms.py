@@ -218,8 +218,10 @@ class Cms(WSModule):
                 if Registry().get('proxy_many_died'):
                     worker.done = True
                     time.sleep(3)
-                if worker.done:
+
+                if worker.done or Registry().get('positive_limit_stop'):
                     del w_thrds[w_thrds.index(worker)]
+
                 if int(time.time()) - worker.last_action > int(Registry().get('config')['main']['kill_thread_after_secs']):
                     self.logger.log(
                         "Thread killed by time, resurected {0} times from {1}".format(
@@ -265,6 +267,13 @@ class Cms(WSModule):
                         timeout_threads_count += 1
 
             time.sleep(2)
+
+        if Registry().get('positive_limit_stop'):
+            self.logger.log("\nMany positive detections. Please, look items logs")
+            self.logger.log("Last items:")
+            for i in range(1, 5):
+                print "{0} {1}".format(result[-i]['code'], result[-i]['path'])
+            exit(0)
 
         pid = Registry().get('pData')['id']
 
