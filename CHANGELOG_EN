@@ -1,4 +1,5 @@
 0.4 dev
+ Complitable with Firefox 47+ and Geckodriver
  Added --min-pass-len and --max-pass-len params in FormBruter
  positive_limit_stop now work in Cms module
  Threads of FuzzerHeaders module now has a timeout from last action for force kill (how in other http-modules) (insuranse from thread hovering)
