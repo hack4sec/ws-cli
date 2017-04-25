@@ -17,8 +17,9 @@ import copy
 from requests.exceptions import ChunkedEncodingError, ConnectionError
 
 from classes.Registry import Registry
+from classes.threads.HttpThread import HttpThread
 
-class FormBruterThread(threading.Thread):
+class FormBruterThread(HttpThread):
     """ Thread class for FormBruter module """
     queue = None
     method = None
@@ -57,6 +58,7 @@ class FormBruterThread(threading.Thread):
         self.http.every_request_new_session = True
         self.pass_min_len = int(pass_min_len)
         self.pass_max_len = int(pass_max_len)
+        self.retest_delay = int(Registry().get('config')['form_bruter']['retest_delay'])
 
     def _make_conf_from_str(self, confstr):
         result = {}
@@ -107,15 +109,10 @@ class FormBruterThread(threading.Thread):
                     self.http.change_proxy()
                     continue
 
-                if resp is not None and len(self.retest_codes) and str(resp.status_code) in self.retest_codes:
-                    if word not in self.retested_words.keys():
-                        self.retested_words[word] = 0
-                    self.retested_words[word] += 1
-
-                    if self.retested_words[word] <= self.retest_limit:
-                        need_retest = True
-                        time.sleep(int(Registry().get('config')['form_bruter']['retest_delay']))
-                        continue
+                if self.is_retest_need(word, resp):
+                    time.sleep(self.retest_delay)
+                    need_retest = True
+                    continue
 
                 positive_item = False
                 if (len(self.false_phrase) and
@@ -124,10 +121,9 @@ class FormBruterThread(threading.Thread):
                     self.result.append({'word': word, 'content': resp.content})
                     positive_item = True
 
-                    if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
-                        Registry().set('positive_limit_stop', True)
+                    self.check_positive_limit_stop(self.result)
 
-                self.logger.item(word, resp.content if not resp is None else "", positive=positive_item)
+                self.log_item(word, resp, positive_item)
 
                 if positive_item and int(self.first_stop):
                     self.done = True

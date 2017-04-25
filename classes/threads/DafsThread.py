@@ -19,10 +19,10 @@ import pprint
 from requests.exceptions import ChunkedEncodingError, ConnectionError
 
 from classes.Registry import Registry
-from libs.common import is_binary_content_type
+from classes.threads.HttpThread import HttpThread
 
 
-class DafsThread(threading.Thread):
+class DafsThread(HttpThread):
     """ Thread class for Dafs modules """
     queue = None
     method = None
@@ -62,6 +62,7 @@ class DafsThread(threading.Thread):
         self.retest_codes = list(set(retest_codes.split(','))) if len(retest_codes) else []
 
         self.delay = int(delay)
+        self.retest_delay = int(Registry().get('config')['dafs']['retest_delay'])
 
         self.http = copy.deepcopy(Registry().get('http'))
         self.logger = Registry().get('logger')
@@ -102,32 +103,13 @@ class DafsThread(threading.Thread):
                     self.http.change_proxy()
                     continue
 
-                binary_content = resp is not None \
-                                 and 'content-type' in resp.headers \
-                                 and is_binary_content_type(resp.headers['content-type'])
-
-                if resp is not None and len(self.retest_codes) and str(resp.status_code) in self.retest_codes:
-                    if word not in self.retested_words.keys():
-                        self.retested_words[word] = 0
-                    self.retested_words[word] += 1
-
-                    if self.retested_words[word] <= self.retest_limit:
-                        need_retest = True
-                        time.sleep(int(Registry().get('config')['dafs']['retest_delay']))
-                        continue
-
-                response_headers_text = ''
-                for header in resp.headers:
-                    response_headers_text += '{0}: {1}\r\n'.format(header, resp.headers[header])
+                if self.is_retest_need(word, resp):
+                    time.sleep(self.retest_delay)
+                    need_retest = True
+                    continue
 
                 positive_item = False
-                if resp is not None \
-                    and (self.not_found_size == -1 or self.not_found_size != len(resp.content)) \
-                    and str(resp.status_code) not in self.not_found_codes \
-                    and not (not binary_content and self.not_found_re and (
-                                    self.not_found_re.findall(resp.content) or
-                                    self.not_found_re.findall(response_headers_text)
-                        )):
+                if self.is_response_right(resp):
                     self.result.append({
                         'url': url,
                         'code': resp.status_code,
@@ -135,10 +117,9 @@ class DafsThread(threading.Thread):
                     })
                     positive_item = True
 
-                self.logger.item(word, resp.content if not resp is None else "", binary_content, positive=positive_item)
+                self.log_item(word, resp, positive_item)
 
-                if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
-                    Registry().set('positive_limit_stop', True)
+                self.check_positive_limit_stop(self.result)
 
                 need_retest = False
             except Queue.Empty:

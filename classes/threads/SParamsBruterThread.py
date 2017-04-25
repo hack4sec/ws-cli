@@ -27,6 +27,8 @@ class SParamsBruterThread(SeleniumThread):
     mask_symbol = None
     counter = None
     last_action = 0
+    queue_is_empty = False
+    last_word = ""
 
     def __init__(
             self, queue, protocol, host, url, max_params_length, value, method, mask_symbol, not_found_re,
@@ -58,11 +60,31 @@ class SParamsBruterThread(SeleniumThread):
 
         self.logger = Registry().get('logger')
 
+    def build_params_str(self):
+        params_str = "" if not len(self.last_word) else "{0}={1}&".format(self.last_word, self.value)
+        self.last_word = ""
+        while len(params_str) < self.max_params_length:
+            try:
+                word = self.queue.get()
+            except Queue.Empty:
+                self.queue_is_empty = True
+                break
+
+            if not len(word.strip()) or (self.ignore_words_re and self.ignore_words_re.findall(word)):
+                continue
+
+            self.counter.up()
+
+            params_str += "{0}={1}&".format(word, self.value)
+
+            self.last_word = word
+
+        return params_str[:-(len(self.last_word) + 3)]
+
     def run(self):
         """ Run thread """
         need_retest = False
-        last_word = ""
-        queue_is_empty = False
+
         while not self.done:
             self.last_action = int(time.time())
 
@@ -71,24 +93,7 @@ class SParamsBruterThread(SeleniumThread):
 
             try:
                 if not need_retest:
-                    params_str = "" if not len(last_word) else "{0}={1}&".format(last_word, self.value)
-                    last_word = ""
-                    while len(params_str) < self.max_params_length:
-                        try:
-                            word = self.queue.get()
-                        except Queue.Empty:
-                            queue_is_empty = True
-                            break
-
-                        if not len(word.strip()) or (self.ignore_words_re and self.ignore_words_re.findall(word)):
-                            continue
-
-                        self.counter.up()
-
-                        params_str += "{0}={1}&".format(word, self.value)
-
-                        last_word = word
-                    params_str = params_str[:-(len(last_word)+3)]
+                    params_str = params_str = self.build_params_str()
 
                 self.browser.get(self.protocol + "://" + self.host + self.url + params_str)
 
@@ -122,7 +127,7 @@ class SParamsBruterThread(SeleniumThread):
 
                 need_retest = False
 
-                if queue_is_empty:
+                if self.queue_is_empty:
                     self.done = True
                     break
             except UnicodeDecodeError as e:

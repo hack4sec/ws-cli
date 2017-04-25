@@ -17,9 +17,10 @@ from requests.exceptions import ChunkedEncodingError, ConnectionError
 
 from libs.common import is_binary_content_type
 from classes.Registry import Registry
+from classes.threads.HttpThread import HttpThread
 
 
-class BackupsFinderThread(threading.Thread):
+class BackupsFinderThread(HttpThread):
     """ Thread class for BF module """
     queue = None
     method = None
@@ -75,32 +76,14 @@ class BackupsFinderThread(threading.Thread):
                     self.http.change_proxy()
                     continue
 
-                binary_content = resp is not None and is_binary_content_type(resp.headers['content-type'])
-
-                response_headers_text = ''
-                for header in resp.headers:
-                    response_headers_text += '{0}: {1}\r\n'.format(header, resp.headers[header])
-
                 positive_item = False
-                if resp is not None \
-                    and (self.not_found_size == -1 or self.not_found_size != len(resp.content)) \
-                    and str(resp.status_code) not in self.not_found_codes \
-                    and not (not binary_content and self.not_found_re and (
-                                    self.not_found_re.findall(resp.content) or
-                                    self.not_found_re.findall(response_headers_text)
-                        )):
+                if self.is_response_right():
                     self.result.append(word)
                     positive_item = True
 
-                self.logger.item(
-                    word,
-                    resp.content if not resp is None else "",
-                    binary_content,
-                    positive=positive_item
-                )
+                self.log_item(word, resp, positive_item)
 
-                if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
-                    Registry().set('positive_limit_stop', True)
+                self.check_positive_limit_stop(self.result)
 
                 #self.queue.task_done(word)
                 need_retest = False

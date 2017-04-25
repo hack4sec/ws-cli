@@ -19,9 +19,10 @@ import re
 from requests.exceptions import ChunkedEncodingError, ConnectionError
 
 from classes.Registry import Registry
+from classes.threads.HttpThread import HttpThread
 
 
-class HostsBruteThread(threading.Thread):
+class HostsBruteThread(HttpThread):
     """ Thread class for HostsBrute modules """
     queue = None
     method = None
@@ -51,6 +52,7 @@ class HostsBruteThread(threading.Thread):
         self.retest_codes = list(set(retest_codes.split(','))) if len(retest_codes) else []
 
         self.delay = int(delay)
+        self.retest_delay = int(Registry().get('config')['hosts_brute']['retest_delay'])
 
         self.http = copy.deepcopy(Registry().get('http'))
         self.logger = Registry().get('logger')
@@ -95,17 +97,10 @@ class HostsBruteThread(threading.Thread):
                     self.http.change_proxy()
                     continue
 
-                binary_content = False
-
-                if resp is not None and len(self.retest_codes) and str(resp.status_code) in self.retest_codes:
-                    if word not in self.retested_words.keys():
-                        self.retested_words[word] = 0
-                    self.retested_words[word] += 1
-
-                    if self.retested_words[word] <= self.retest_limit:
-                        need_retest = True
-                        time.sleep(int(Registry().get('config')['hosts_brute']['retest_delay']))
-                        continue
+                if self.is_retest_need(word, resp):
+                    time.sleep(self.retest_delay)
+                    need_retest = True
+                    continue
 
                 search_scope = ""
                 for header in resp.headers:
@@ -117,10 +112,9 @@ class HostsBruteThread(threading.Thread):
                     self.result.append(hostname)
                     positive_item = True
 
-                self.logger.item(word, resp.content if not resp is None else "", binary_content, positive=positive_item)
+                self.log_item(word, resp, positive_item)
 
-                if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
-                    Registry().set('positive_limit_stop', True)
+                self.check_positive_limit_stop(self.result)
 
                 need_retest = False
             except Queue.Empty:

@@ -17,13 +17,13 @@ import re
 import pprint
 
 from requests.exceptions import ChunkedEncodingError, ConnectionError
+from classes.threads.HttpThread import HttpThread
 
 from classes.Registry import Registry
-from libs.common import is_binary_content_type
 
 
-class ParamsBruterThread(threading.Thread):
-    """ Thread class for Dafs modules """
+class ParamsBruterThread(HttpThread):
+    """ Thread class for ParamsBrute modules """
     queue = None
     method = None
     template = None
@@ -33,6 +33,8 @@ class ParamsBruterThread(threading.Thread):
     last_action = 0
     retest_limit = int(Registry().get('config')['dafs']['retest_limit'])
     ignore_words_re = None
+    queue_is_empty = False
+    last_word = ""
 
     def __init__(
             self, queue, protocol, host, url, max_params_length, value, method, mask_symbol, not_found_re,
@@ -62,34 +64,41 @@ class ParamsBruterThread(threading.Thread):
         self.retest_codes = list(set(retest_codes.split(','))) if len(retest_codes) else []
 
         self.delay = int(delay)
+        self.retest_delay = int(Registry().get('config')['params_bruter']['retest_delay'])
 
         self.http = copy.deepcopy(Registry().get('http'))
         self.logger = Registry().get('logger')
 
-    def is_response_content_binary(self, resp):
-        return resp is not None \
-            and 'content-type' in resp.headers \
-            and is_binary_content_type(resp.headers['content-type'])
+    def build_params_str(self):
+        params_str = "" if not len(self.last_word) else "{0}={1}&".format(self.last_word, self.value)
+        self.last_word = ""
+        while len(params_str) < self.max_params_length:
+            try:
+                word = self.queue.get()
+            except Queue.Empty:
+                self.queue_is_empty = True
+                break
 
-    def is_response_right(self, resp):
-        response_headers_text = ''
-        for header in resp.headers:
-            response_headers_text += '{0}: {1}\r\n'.format(header, resp.headers[header])
+            if not len(word.strip()) or (self.ignore_words_re and self.ignore_words_re.findall(word)):
+                continue
 
-        binary_content = self.is_response_content_binary(resp)
+            self.counter.up()
 
-        return resp is not None \
-                and (self.not_found_size == -1 or self.not_found_size != len(resp.content)) \
-                and str(resp.status_code) not in self.not_found_codes \
-                and not (not binary_content and self.not_found_re and (
-                    self.not_found_re.findall(resp.content) or
-                    self.not_found_re.findall(response_headers_text)
-                ))
+            params_str += "{0}={1}&".format(word, self.value)
+
+            self.last_word = word
+
+        return params_str[:-(len(self.last_word) + 3)]
+
+    def request_params(self, params):
+        full_url = self.protocol + "://" + self.host + self.url
+        return self.http.get(full_url + params) if \
+            self.method == 'get' else \
+            self.http.post(full_url, data=params, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+
     def run(self):
         """ Run thread """
         need_retest = False
-        last_word = ""
-        queue_is_empty = False
 
         while not self.done:
             self.last_action = int(time.time())
@@ -99,59 +108,26 @@ class ParamsBruterThread(threading.Thread):
 
             try:
                 if not need_retest:
-                    params_str = "" if not len(last_word) else "{0}={1}&".format(last_word, self.value)
-                    last_word = ""
-                    while len(params_str) < self.max_params_length:
-                        try:
-                            word = self.queue.get()
-                        except Queue.Empty:
-                            queue_is_empty = True
-                            break
-
-                        if not len(word.strip()) or (self.ignore_words_re and self.ignore_words_re.findall(word)):
-                            continue
-
-                        self.counter.up()
-
-                        params_str += "{0}={1}&".format(word, self.value)
-
-                        last_word = word
-                    params_str = params_str[:-(len(last_word)+3)]
+                    params_str = self.build_params_str()
 
                 try:
-                    if self.method == 'get':
-                        resp = self.http.get(self.protocol + "://" + self.host + self.url + params_str)
-                    else:
-                        resp = self.http.post(
-                            self.protocol + "://" + self.host + self.url, data=params_str,
-                            headers={'Content-Type': 'application/x-www-form-urlencoded'})
+                    resp = self.request_params(params_str)
                 except ConnectionError:
                     need_retest = True
                     self.http.change_proxy()
                     continue
 
-                if resp is not None and len(self.retest_codes) and str(resp.status_code) in self.retest_codes:
-                    if params_str not in self.retested_words.keys():
-                        self.retested_words[params_str] = 0
-                    self.retested_words[params_str] += 1
-
-                    if self.retested_words[params_str] <= self.retest_limit:
-                        need_retest = True
-                        time.sleep(int(Registry().get('config')['dafs']['retest_delay']))
-                        continue
+                if self.is_retest_need(params_str, resp):
+                    time.sleep(self.retest_delay)
+                    need_retest = True
+                    continue
 
                 positive_item = False
                 if self.is_response_right(resp):
-                    right_response_binary_content = self.is_response_content_binary(resp)
                     param_found = False
                     for one_param in params_str.split("&"):
                         try:
-                            if self.method == 'get':
-                                resp = self.http.get(self.protocol + "://" + self.host + self.url + one_param)
-                            else:
-                                resp = self.http.post(
-                                    self.protocol + "://" + self.host + self.url, data=one_param,
-                                    headers={'Content-Type': 'application/x-www-form-urlencoded'})
+                            resp = self.request_params(one_param)
                         except ConnectionError:
                             need_retest = True
                             self.http.change_proxy()
@@ -161,7 +137,6 @@ class ParamsBruterThread(threading.Thread):
                             self.result.append(one_param)
                             param_found = True
                             found_item = one_param
-                            right_response_binary_content = self.is_response_content_binary(resp)
 
                     if param_found is False:
                         self.result.append(params_str)
@@ -169,16 +144,13 @@ class ParamsBruterThread(threading.Thread):
 
                     positive_item = True
 
-                    self.logger.item(
-                        found_item, resp.content if resp is not None else "",
-                        right_response_binary_content, positive=positive_item)
+                    self.log_item(found_item, resp, positive_item)
 
-                if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
-                    Registry().set('positive_limit_stop', True)
+                self.check_positive_limit_stop(self.result)
 
                 need_retest = False
 
-                if queue_is_empty:
+                if self.queue_is_empty:
                     self.done = True
                     break
             except ChunkedEncodingError as e:
