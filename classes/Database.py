@@ -26,17 +26,21 @@ class Database(object):
         )
         self._db.autocommit = True
 
-    def q(self, sql):
+    def q(self, sql, return_curs=False):
         """ Usual query, return cursor """
         curs = self._db.cursor()
         curs.execute(sql)
-        return curs
+
+        if return_curs:
+            return curs
+        else:
+            curs.close()
 
     def fetch_all(self, sql):
         """ Fetch result of sql query as assoc dict """
         result = []
 
-        curs = self.q(sql)
+        curs = self.q(sql, True)
         cols = curs.column_names
         for row in curs:
             row_result = {}
@@ -45,13 +49,18 @@ class Database(object):
                 row_result[cols[k]] = row[k]
                 #print cols[k], row[k]
             result.append(row_result)
+        curs.close()
         return result
 
     def fetch_row(self, sql):
         """ Fetch result of sql query as one row """
-        curs = self.q(sql)
+        curs = self.q(sql, True)
         cols = curs.column_names
         row = curs.fetchone()
+        if curs._have_unread_result():
+            curs.fetchall()
+        curs.close()
+
         if row:
             result = {}
             for field in cols:
@@ -63,8 +72,12 @@ class Database(object):
 
     def fetch_one(self, sql):
         """ Fetch first value of sql query from first row """
-        curs = self.q(sql)
+        curs = self.q(sql, True)
         row = curs.fetchone()
+        if curs._have_unread_result():
+            curs.fetchall()
+        curs.close()
+
         if row:
             return row[0]
         else:
@@ -75,20 +88,22 @@ class Database(object):
         """ Fetch first col in result of sql query as list """
         result = []
 
-        curs = self.q(sql)
+        curs = self.q(sql, True)
         for row in curs:
             result.append(row[0])
 
+        curs.close()
         return result
 
     def fetch_pairs(self, sql):
         """ Fetch result of sql query as dict {first_col: second_col} """
         result = {}
 
-        curs = self.q(sql)
+        curs = self.q(sql, True)
         for row in curs:
             result[row[0]] = row[1]
 
+        curs.close()
         return result
 
     def escape(self, expr):
@@ -111,9 +126,12 @@ class Database(object):
         values = map(self.quote, data.values())
         curs = self.q(
             "INSERT " + ("IGNORE" if ignore else "") + " INTO `{0}` ({1}) VALUES({2})".
-            format(table_name, ", ".join(fields), ", ".join(values))
+            format(table_name, ", ".join(fields), ", ".join(values)),
+            True
         )
-        return curs.lastrowid
+        last_id = curs.lastrowid
+        curs.close()
+        return last_id
 
     def insert_mass(self, table_name, data, ignore=False):
         """
@@ -154,8 +172,11 @@ class Database(object):
         """
         fields = map((lambda s: "`" + str(s) + "`"), data.keys())
         values = map(self.quote, data.values())
-        curs = self.q("REPLACE INTO `{0}` ({1}) VALUES({2})".format(table_name, ", ".join(fields), ", ".join(values)))
-        return curs.lastrowid
+        curs = self.q(
+            "REPLACE INTO `{0}` ({1}) VALUES({2})".format(table_name, ", ".join(fields), ", ".join(values)), True)
+        last_id = curs.lastrowid
+        curs.close()
+        return last_id
 
     def update(self, table_name, data, where):
         """
