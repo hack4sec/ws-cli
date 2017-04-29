@@ -182,7 +182,7 @@ class Spider(WSModule):
         self._options_to_registry()
 
         if self.options['full-new'].value:
-            SpiderCommon.make_full_new_scan()
+            SpiderCommon.make_full_new_scan(Registry().get('pData')['id'])
 
         SpiderCommon.prepare_first_pages(self.options['host'].value)
 
