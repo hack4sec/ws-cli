@@ -47,9 +47,9 @@ class SpiderCommon(object):
     denied_schemas = None
 
     @staticmethod
-    def make_full_new_scan():
+    def make_full_new_scan(project_id):
         """ Mark all links as no scanned """
-        Registry().get('ndb').q("UPDATE urls SET spidered = 0")
+        Registry().get('ndb').q("UPDATE urls SET spidered = 0 WHERE project_id = {0}".format(int(project_id)))
 
     @staticmethod
     def _clear_link_obj(link):
@@ -140,7 +140,7 @@ class SpiderCommon(object):
         query = query.strip()
         url = str(path + query).decode('utf-8', errors='ignore')
         #url = url.encode()
-        return hashlib.md5(url.encode('utf-8')).hexdigest(),
+        return hashlib.md5(url.encode('utf-8')).hexdigest()
 
     @staticmethod
     def insert_links(links, referer, site):
