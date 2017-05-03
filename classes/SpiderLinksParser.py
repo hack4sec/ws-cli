@@ -87,7 +87,7 @@ class SpiderLinksParser(object):
     def parse_links_text_re(self, content):
         """ Method parse links from usual text """
         content = content.replace("]]>", "").replace("<![CDATA[", "")
-        content = re.sub(r"<([/a-zA-Z:\-0-9]*?)>", "", content)
+        content = re.sub(r"<([/a-zA-Z:\-0-9]*?)>", " ", content)
         urls = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', content)
         urls = map(
             lambda url: url.strip('\'" '),
