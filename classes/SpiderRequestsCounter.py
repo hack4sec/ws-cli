@@ -17,8 +17,8 @@ class SpiderRequestsCounter(object):
     counter = 0
     limit = 0
 
-    def __init__(self):
-        self.limit = int(Registry().get('config')['spider']['requests_limit'])
+    def __init__(self, limit):
+        self.limit = limit
 
     def get(self):
         """ Return current count """

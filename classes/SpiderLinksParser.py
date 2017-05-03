@@ -90,7 +90,7 @@ class SpiderLinksParser(object):
         content = re.sub(r"<([/a-zA-Z:\-0-9]*?)>", " ", content)
         urls = re.findall(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', content)
         urls = map(
-            lambda url: url.strip('\'" '),
+            lambda url: url.strip('\'" ,);'),
             urls
         )
         return urls

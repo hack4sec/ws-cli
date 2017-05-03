@@ -191,7 +191,7 @@ class Spider(WSModule):
             os.chmod(Registry().get('data_path') + self.options['host'].value, 0o777)
 
         job = SpiderJob()
-        src = SpiderRequestsCounter()
+        src = SpiderRequestsCounter(int(Registry().get('config')['spider']['requests_limit']))
         counter = WSCounter(5, 300, 0)
 
         workers = []
