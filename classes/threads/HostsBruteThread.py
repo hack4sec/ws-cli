@@ -31,7 +31,6 @@ class HostsBruteThread(HttpThread):
     counter = None
     retested_words = None
     last_action = 0
-    retest_limit = int(Registry().get('config')['hosts_brute']['retest_limit'])
 
     def __init__(
             self, queue, protocol, host, template, mask_symbol,
@@ -60,6 +59,8 @@ class HostsBruteThread(HttpThread):
         self.method = 'get'
 
         self.ignore_words_re = False if not len(ignore_words_re) else re.compile(ignore_words_re)
+
+        self.retest_limit = int(Registry().get('config')['hosts_brute']['retest_limit'])
 
     def run(self):
         """ Run thread """

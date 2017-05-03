@@ -17,16 +17,24 @@ class HttpThread(threading.Thread):
         return response_headers_text
 
     def is_response_right(self, resp):
-        return resp is not None \
-                and (self.not_found_size == -1 or self.not_found_size != len(resp.content)) \
-                and str(resp.status_code) not in self.not_found_codes \
-                and not (not self.is_response_content_binary(resp) and self.not_found_re and (
+        if resp is None:
+            return False
+
+        if self.not_found_size != -1 and self.not_found_size == len(resp.content):
+            return False
+
+        if self.not_found_re and not self.is_response_content_binary(resp) and (
                     self.not_found_re.findall(resp.content) or
-                    self.not_found_re.findall(self.get_headers_text(resp))
-                ))
+                    self.not_found_re.findall(self.get_headers_text(resp))):
+            return False
+
+        if str(resp.status_code) in self.not_found_codes:
+            return False
+
+        return True
 
     def log_item(self, item_str, resp, is_positive):
-        self.logger.item(
+        Registry().get('logger').item(
             item_str,
             resp.content if not resp is None else "",
             self.is_response_content_binary(resp),
@@ -34,7 +42,10 @@ class HttpThread(threading.Thread):
         )
 
     def check_positive_limit_stop(self, result, rate=1):
-        if len(self.result) >= (int(Registry().get('config')['main']['positive_limit_stop']) * rate):
+        import requests
+        requests.get('http://localhost/' + str(len(result)))
+        requests.get('http://localhost/' + str(int(Registry().get('config')['main']['positive_limit_stop']) * rate))
+        if len(result) >= (int(Registry().get('config')['main']['positive_limit_stop']) * rate):
             Registry().set('positive_limit_stop', True)
 
     def is_retest_need(self, word, resp):

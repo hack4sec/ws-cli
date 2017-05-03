@@ -30,7 +30,6 @@ class FormBruterThread(HttpThread):
     logger = None
     retested_words = None
     last_action = 0
-    retest_limit = int(Registry().get('config')['form_bruter']['retest_limit'])
 
     def __init__(
             self, queue, protocol, host, url, false_phrase, true_phrase, retest_codes, delay,
@@ -59,6 +58,7 @@ class FormBruterThread(HttpThread):
         self.pass_min_len = int(pass_min_len)
         self.pass_max_len = int(pass_max_len)
         self.retest_delay = int(Registry().get('config')['form_bruter']['retest_delay'])
+        self.retest_limit = int(Registry().get('config')['form_bruter']['retest_limit'])
 
     def _make_conf_from_str(self, confstr):
         result = {}

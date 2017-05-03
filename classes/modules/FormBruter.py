@@ -300,8 +300,6 @@ class FormBruter(WSModule):
                     self.options['login'].value,
                     self.options['pass-min-len'].value,
                     self.options['pass-max-len'].value,
-                    self.options['login'].value,
-                    #self.options['reload-form-page'].value.lower(),
                     pass_found,
                     counter,
                     result

@@ -31,7 +31,6 @@ class ParamsBruterThread(HttpThread):
     counter = None
     retested_words = None
     last_action = 0
-    retest_limit = int(Registry().get('config')['dafs']['retest_limit'])
     ignore_words_re = None
     queue_is_empty = False
     last_word = ""
@@ -68,6 +67,7 @@ class ParamsBruterThread(HttpThread):
 
         self.http = copy.deepcopy(Registry().get('http'))
         self.logger = Registry().get('logger')
+        self.retest_limit = int(Registry().get('config')['dafs']['retest_limit'])
 
     def build_params_str(self):
         params_str = "" if not len(self.last_word) else "{0}={1}&".format(self.last_word, self.value)

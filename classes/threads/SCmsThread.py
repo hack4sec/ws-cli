@@ -96,7 +96,7 @@ class SCmsThread(SeleniumThread):
                     path,
                     self.browser.page_source,
                     True,
-                    posivite=positive_item
+                    positive_item
                 )
 
                 self.queue.task_done()

@@ -59,6 +59,7 @@ class SDafsThread(SeleniumThread):
     def run(self):
         """ Run thread """
         need_retest = False
+        word = None
         while not self.done:
             self.last_action = int(time.time())
 
@@ -99,7 +100,7 @@ class SDafsThread(SeleniumThread):
                     })
                     positive_item = True
 
-                self.logger.item(word, self.browser.page_source, True, positive=positive_item)
+                self.logger.item(word, self.browser.page_source, False, positive_item)
 
                 if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
                     Registry().set('positive_limit_stop', True)

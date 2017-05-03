@@ -31,7 +31,6 @@ class DafsThread(HttpThread):
     counter = None
     retested_words = None
     last_action = 0
-    retest_limit = int(Registry().get('config')['dafs']['retest_limit'])
     ignore_words_re = None
 
     def __init__(
@@ -66,6 +65,8 @@ class DafsThread(HttpThread):
 
         self.http = copy.deepcopy(Registry().get('http'))
         self.logger = Registry().get('logger')
+
+        self.retest_limit = int(Registry().get('config')['dafs']['retest_limit'])
 
     def run(self):
         """ Run thread """

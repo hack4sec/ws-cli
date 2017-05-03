@@ -142,7 +142,7 @@ class SFormBruterThread(SeleniumThread):
                     if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
                         Registry().set('positive_limit_stop', True)
 
-                self.logger.item(word, self.browser.page_source, True, positive=positive_item)
+                self.logger.item(word, self.browser.page_source, False, positive_item)
 
                 if positive_item:
                     if int(self.first_stop):

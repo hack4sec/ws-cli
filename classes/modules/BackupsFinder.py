@@ -234,8 +234,8 @@ class BackupsFinder(WSModule):
                     self.options['protocol'].value.lower(),
                     self.options['method'].value.lower(),
                     self.options['not-found-re'].value,
-                    self.options['not-found-size'].value,
                     self.options['not-found-codes'].value.lower(),
+                    self.options['not-found-size'].value,
                     self.options['delay'].value,
                     counter,
                     result

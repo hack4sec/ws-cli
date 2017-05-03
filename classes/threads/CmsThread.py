@@ -93,7 +93,7 @@ class CmsThread(HttpThread):
                     continue
 
                 positive_item = False
-                if self.is_response_right():
+                if self.is_response_right(resp):
                     self.result.append({
                         'path': path,
                         'code': resp.status_code,

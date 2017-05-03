@@ -30,7 +30,7 @@ class BackupsFinderThread(HttpThread):
 
     def __init__(self, queue, domain, protocol, method, not_found_re, not_found_codes,
                  not_found_size, delay, counter, result):
-        threading.Thread.__init__(self)
+        super(BackupsFinderThread, self).__init__()
         self.queue = queue
         self.domain = domain
         self.result = result
@@ -38,6 +38,8 @@ class BackupsFinderThread(HttpThread):
         self.protocol = protocol
         self.not_found_re = False if not len(not_found_re) else re.compile(not_found_re)
         self.not_found_size = int(not_found_size)
+        self.method = method.lower()
+
         self.method = method if \
             not ((len(not_found_re) or self.not_found_size != -1) and method.lower() == 'head') else \
             'get'
@@ -77,7 +79,7 @@ class BackupsFinderThread(HttpThread):
                     continue
 
                 positive_item = False
-                if self.is_response_right():
+                if self.is_response_right(resp):
                     self.result.append(word)
                     positive_item = True
 
@@ -85,7 +87,6 @@ class BackupsFinderThread(HttpThread):
 
                 self.check_positive_limit_stop(self.result)
 
-                #self.queue.task_done(word)
                 need_retest = False
             except Queue.Empty:
                 self.done = True
