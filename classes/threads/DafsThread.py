@@ -51,9 +51,9 @@ class DafsThread(HttpThread):
         self.ignore_words_re = False if not len(ignore_words_re) else re.compile(ignore_words_re)
         self.not_found_re = False if not len(not_found_re) else re.compile(not_found_re)
         self.not_found_size = int(not_found_size)
-        self.method = method if \
-            not ((len(not_found_re) or self.not_found_size != -1) and method.lower() == 'head') else \
-            'get'
+        self.method = method
+        if method == 'head' and (len(not_found_re) or self.not_found_size != -1):
+            self.method = 'get'
 
         not_found_codes = not_found_codes.split(',')
         not_found_codes.append('404')
