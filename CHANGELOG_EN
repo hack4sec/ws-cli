@@ -1,4 +1,5 @@
 0.4 dev
+ Logger now print exceptions information in stdout
  Fixed Spider bug with only http-links
  ParamsBrute* modules added
  Complitable with Firefox 47+ and Geckodriver

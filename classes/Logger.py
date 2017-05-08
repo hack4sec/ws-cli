@@ -115,4 +115,4 @@ class Logger(object):
             trace_text,
         )
 
-        self.log(log_str, _print=False)
+        self.log(log_str, _print=True)
