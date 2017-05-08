@@ -69,9 +69,9 @@ class SpiderCommon(object):
             Registry().get('mongo').spider_urls.update({'hash': link['hash']}, {'$set': link})
 
     @staticmethod
-    def gen_url(link, host):
+    def gen_url(link, host, protocol):
         """ Generate URL by host and dict of link data """
-        url = 'http://' + host + link['path']
+        url = protocol + '://' + host + link['path']
         if link['query']:
             url += '?' +  link['query']
         return url

@@ -23,7 +23,7 @@ class SSpiderThread(SeleniumThread):
     """ Thread class for Spider module (selenium) """
     last_action = 0
 
-    def __init__(self, job, host, src, not_found_re, delay, ddos_phrase, ddos_human, recreate_re, counter):
+    def __init__(self, job, host, protocol, src, not_found_re, delay, ddos_phrase, ddos_human, recreate_re, counter):
         super(SSpiderThread, self).__init__()
 
         self._db = Registry().get('mongo')
@@ -35,6 +35,7 @@ class SSpiderThread(SeleniumThread):
         self.delay = int(delay)
         self.counter = counter
         self.src = src
+        self.protocol = protocol
         self.running = True
         self.ddos_phrase = ddos_phrase
         self.ddos_human = ddos_human
@@ -66,7 +67,7 @@ class SSpiderThread(SeleniumThread):
         for link in links:
             self.last_action = int(time.time())
 
-            url = SpiderCommon.gen_url(link, self.host)
+            url = SpiderCommon.gen_url(link, self.host, self.protocol)
 
             start_time = int(round(time.time() * 1000))
 

@@ -133,6 +133,13 @@ class Spider(WSModule):
                 False,
                 ['--headers-file']
             ),
+            "protocol": WSOption(
+                "protocol",
+                "Protocol http or https (default - http)",
+                "http",
+                False,
+                ['--protocol']
+            ),
         }
     }
 
@@ -200,6 +207,7 @@ class Spider(WSModule):
                 worker = SSpiderThread(
                     job,
                     self.options['host'].value,
+                    self.options['protocol'].value,
                     src,
                     self.options['not-found-re'].value,
                     self.options['delay'].value,
@@ -212,6 +220,7 @@ class Spider(WSModule):
                 worker = SpiderThread(
                     job,
                     self.options['host'].value,
+                    self.options['protocol'].value,
                     src,
                     self.options['delay'].value,
                     counter

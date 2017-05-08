@@ -22,10 +22,11 @@ class SpiderThread(WSThread):
     """ Thread class for Spider module """
     last_action = 0
 
-    def __init__(self, job, host, src, delay, counter):
+    def __init__(self, job, host, protocol, src, delay, counter):
         WSThread.__init__(self, None, None)
         self.job = job
         self.host = host
+        self.protocol = protocol
         self.links_parser = SpiderLinksParser()
         #self.not_found_phrase = not_found_phrase
         self.http = Registry().get('http')
@@ -59,7 +60,7 @@ class SpiderThread(WSThread):
 
             self.counter.up()
 
-            url = SpiderCommon.gen_url(link, self.host)
+            url = SpiderCommon.gen_url(link, self.host, self.protocol)
 
             start_time = int(round(time.time() * 1000))
 

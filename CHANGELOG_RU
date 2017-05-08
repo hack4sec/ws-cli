@@ -1,4 +1,5 @@
 0.4 dev
+ Исправлен баг паука позволявший работать только с http-ссылками
  Добавлены модули ParamsBrute*
  Совместимость с Firefox 47+ и Geckodriver
  В модуль FormBruter добавлены параметры --min-pass-len и --max-pass-len
