@@ -201,7 +201,3 @@ class DafsCombine(DafsModules):
         )
         queue.set_generator(generator)
         return {'all': generator.lines_count, 'start': generator.first_border, 'end': generator.second_border}
-
-    def validate_main(self):
-        """ Check users params """
-        DafsModules.validate_main(self)

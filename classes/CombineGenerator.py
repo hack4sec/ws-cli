@@ -53,7 +53,7 @@ class CombineGenerator(object):
             self.first_border = one_part_count * (part - 1)
             self.second_border = one_part_count * part
 
-            while self.current_counter <= self.first_border:
+            while self.current_counter < self.first_border:
                 self.get()
 
     def _get(self):
@@ -71,12 +71,12 @@ class CombineGenerator(object):
 
     def get(self):
         """ Get next combine item and up counters """
-        self.current_counter += 1
-
-        if self.current_counter > self.second_border:
+        if self.second_border and self.current_counter >= self.second_border:
             return None
 
         to_return = self._get()
+
+        self.current_counter += 1
 
         return to_return
 

@@ -42,8 +42,6 @@ class ParamsBruterModules(WSModule):
             raise WSException("URL must start from the root ('/') !")
 
     def brute_action(self):
-        #TODO тип того что суём в параметры
-        #TODO может обрабатывать url-символы в имени параметров или чекать чтоб там не было мусора?
         """ Scan action of module """
         self.enable_logger()
         self.validate_main()

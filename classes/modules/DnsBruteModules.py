@@ -93,7 +93,7 @@ class DnsBruteModules(WSModule):
                                 protocol = 'udp'
                             except socket.error:
                                 #raise Exception('Can`t detect DNS-server protocol. Check addr.')
-                                we_need_server = True #TODO по-человечески сделать
+                                we_need_server = True
                         #print 'DNS protolol detected automaticaly: ' + protocol
                     else:
                         protocol = self.options['protocol'].value
