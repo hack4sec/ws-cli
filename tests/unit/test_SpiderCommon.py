@@ -1,7 +1,15 @@
 # -*- coding: utf-8 -*-
+"""
+This is part of WebScout software
+Docs EN: http://hack4sec.pro/wiki/index.php/WebScout_en
+Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
+License: MIT
+Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pro> (en)
+
+Unit tests for SpiderCommon
+"""
 
 import copy
-from pprint import pprint
 from urlparse import urlparse
 from urlparse import ParseResult
 import hashlib
@@ -12,36 +20,53 @@ import shutil
 
 import pytest
 
-from ModelsCommon import ModelsCommon
-from Logger import Logger
+from Common import Common
+from LoggerMock import LoggerMock
 from classes.SpiderCommon import SpiderCommon
 from classes.Registry import Registry
 from classes.models.UrlsModel import UrlsModel
 
 
-class Test_SpiderCommon(ModelsCommon):
+class Test_SpiderCommon(Common):
+    """Unit tests for SpiderCommon"""
+    model = None
+
     def setup(self):
         self.db.q("TRUNCATE TABLE urls")
         self.db.q("TRUNCATE TABLE urls_base")
         self.db.q("TRUNCATE TABLE `hosts`")
         self.db.q("TRUNCATE TABLE `ips`")
         self.db.q("TRUNCATE TABLE `projects`")
+
         Registry().get('mongo').spider_urls.drop()
+
         self.model = SpiderCommon()
+
         Registry().set('allow_regexp', re.compile(''))
         Registry().get('mongo').spider_urls.create_index([('hash', 1)], unique=True, dropDups=True)
         Registry().get('mongo').spider_urls.create_index([('checked', 1)])
 
+
+
     def test_make_full_new_scan(self):
         url_data = [
-            {'url': '/1/', 'project_id': 1, 'host_id': 1, 'hash': '/ref1/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/2/', 'project_id': 1, 'host_id': 1, 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/3/', 'project_id': 1, 'host_id': 1, 'hash': '/ref3/', 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/4/', 'project_id': 1, 'host_id': 1, 'hash': '/ref4/', 'response_code': 401, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/5/', 'project_id': 1, 'host_id': 1, 'hash': '/ref5/', 'response_code': 401, 'response_time': 10, 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/6/', 'project_id': 1, 'host_id': 1, 'hash': '/ref6/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/7/', 'project_id': 2, 'host_id': 1, 'hash': '/ref7/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'descr': 'some descr'},
-            {'url': '/8/', 'project_id': 2, 'host_id': 1, 'hash': '/ref8/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20}
+            {'url': '/1/', 'project_id': 1, 'host_id': 1, 'hash': '/ref1/', 'response_code': 401,
+             'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/2/', 'project_id': 1, 'host_id': 1, 'response_code': 401,
+             'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/3/', 'project_id': 1, 'host_id': 1, 'hash': '/ref3/',
+             'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/4/', 'project_id': 1, 'host_id': 1, 'hash': '/ref4/',
+             'response_code': 401, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/5/', 'project_id': 1, 'host_id': 1, 'hash': '/ref5/',
+             'response_code': 401, 'response_time': 10, 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/6/', 'project_id': 1, 'host_id': 1, 'hash': '/ref6/',
+             'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20,
+             'descr': 'some descr'},
+            {'url': '/7/', 'project_id': 2, 'host_id': 1, 'hash': '/ref7/',
+             'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'descr': 'some descr'},
+            {'url': '/8/', 'project_id': 2, 'host_id': 1, 'hash': '/ref8/',
+             'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20}
         ]
         for url_row in url_data:
             self.db.insert("urls", url_row)
@@ -90,8 +115,10 @@ class Test_SpiderCommon(ModelsCommon):
         assert Registry().get('mongo').spider_urls.find({'checked': 1}).count() == 2
 
     def test_gen_url(self):
-        assert self.model.gen_url({'path': '/', 'query': ''}, 'test.com') == 'http://test.com/'
-        assert self.model.gen_url({'path': '/', 'query': 'abc'}, 'test.com') == 'http://test.com/?abc'
+        assert self.model.gen_url({'path': '/', 'query': ''}, 'test.com', 'http') == 'http://test.com/'
+        assert self.model.gen_url({'path': '/', 'query': 'abc'}, 'test.com', 'http') == 'http://test.com/?abc'
+        assert self.model.gen_url({'path': '/', 'query': ''}, 'test.com', 'https') == 'https://test.com/'
+        assert self.model.gen_url({'path': '/', 'query': 'abc'}, 'test.com', 'https') == 'https://test.com/?abc'
 
     def test_prepare_links_for_insert(self):
         test_site = "site.com"
@@ -107,10 +134,10 @@ class Test_SpiderCommon(ModelsCommon):
             'http://www.newsite.com/index3.php',
         ]
 
-        assert len(self.model._external_hosts) == 0
+        while len(self.model._external_hosts):
+            self.model._external_hosts.pop()
 
         test1 = self.model.prepare_links_for_insert(test_data, urlparse(test_url), test_site)
-        pprint(self.model._external_hosts)
         assert self.model._external_hosts == ['host.com', 'www.newsite.com']
 
         index1_found = False
@@ -188,8 +215,12 @@ class Test_SpiderCommon(ModelsCommon):
 
     def test_link_allowed(self):
         Registry().set('allow_regexp', re.compile('allowed'))
-        assert bool(self.model._link_allowed(ParseResult(path="/abc/allowed.php", scheme='', netloc='', params='', query='', fragment='')))
-        assert not bool(self.model._link_allowed(ParseResult(path="/denied2.php", scheme='', netloc='', params='', query='', fragment='')))
+        assert bool(
+            self.model._link_allowed(
+                ParseResult(path="/abc/allowed.php", scheme='', netloc='', params='', query='', fragment='')))
+        assert not bool(
+            self.model._link_allowed(
+                ParseResult(path="/denied2.php", scheme='', netloc='', params='', query='', fragment='')))
 
     def test_build_path(self):
         test_link = ParseResult(path="/abc/allowed.php", scheme='', netloc='', params='', query='', fragment='')
@@ -205,8 +236,10 @@ class Test_SpiderCommon(ModelsCommon):
         assert self.model.del_file_from_path("/abc/abc") == "/abc"
 
     def test_clear_link(self):
-        test_link = ParseResult(path="/ab\\c//./d/../allowed.php", scheme='', netloc='', params='', query='?a=b&amp;c=d', fragment='')
-        check_link = ParseResult(path="/ab/c/allowed.php", scheme='', netloc='', params='', query='?a=b&c=d', fragment='')
+        test_link = ParseResult(
+            path="/ab\\c//./d/../allowed.php", scheme='', netloc='', params='', query='?a=b&amp;c=d', fragment='')
+        check_link = ParseResult(
+            path="/ab/c/allowed.php", scheme='', netloc='', params='', query='?a=b&c=d', fragment='')
         assert self.model.clear_link(test_link) == check_link
 
     def test_get_link_data_by_hash(self):
@@ -266,7 +299,7 @@ class Test_SpiderCommon(ModelsCommon):
 
     def test_prepare_first_pages(self):
         Registry().set('pData', {'id': 1})
-        Registry().set('logger', Logger())
+        Registry().set('logger', LoggerMock())
         self.db.q("INSERT INTO projects (id, name, descr) VALUES(1, 'prj', '')")
         self.db.q("INSERT INTO `hosts` (id, project_id, ip_id, name, descr) VALUES (1,1,1,'test.com', '')")
 
@@ -285,7 +318,8 @@ class Test_SpiderCommon(ModelsCommon):
         data = [
             {'url': '/', 'referer': '/', 'response_code': 200, 'response_time': 10, 'who_add': 'dafs1',
              'spidered': 0, 'size': 20, 'descr': 'some descr'},
-            {'url': '/1/', 'referer': '/ref1/', 'response_code': 200, 'response_time': 10, 'who_add': 'dafs1', 'spidered': 0, 'size': 20, 'descr': 'some descr'},
+            {'url': '/1/', 'referer': '/ref1/', 'response_code': 200, 'response_time': 10,
+             'who_add': 'dafs1', 'spidered': 0, 'size': 20, 'descr': 'some descr'},
         ]
         UrlsModel().add_mass(1, 1, data)
 
@@ -312,9 +346,11 @@ class Test_SpiderCommon(ModelsCommon):
 
         urls_data = [
             {'referer': '/', 'code': 200, 'time': 10, 'who_add': 'dafs1',
-             'spidered': 1, 'size': 20, 'descr': 'some descr', 'hash': '6666cd76f96956469e7be39d750cc7d9', 'query': '', 'path': '/', 'checked': 1},
+             'spidered': 1, 'size': 20, 'descr': 'some descr', 'hash': '6666cd76f96956469e7be39d750cc7d9',
+             'query': '', 'path': '/', 'checked': 1},
             {'referer': '/ref1/', 'code': 200, 'time': 10, 'who_add': 'spider',
-             'spidered': 1, 'size': 20, 'descr': '', 'hash': 'fa06d89c65fb808240e37f4c9e128955', 'query': '', 'path': '/1/', 'checked': 1},
+             'spidered': 1, 'size': 20, 'descr': '', 'hash': 'fa06d89c65fb808240e37f4c9e128955',
+             'query': '', 'path': '/1/', 'checked': 1},
         ]
         Registry().get('mongo').spider_urls.insert(urls_data)
         self.model.links_in_spider_base(1, 'test.com')
@@ -322,7 +358,9 @@ class Test_SpiderCommon(ModelsCommon):
         assert self.db.fetch_one("SELECT spidered FROM urls WHERE url='/'") == 1
 
         for url_data in urls_data:
-            test_row = self.db.fetch_row("SELECT *, url as path, response_code as code, response_time as `time`, '' as query, 1 as checked FROM urls WHERE `url` = '{0}'".format(url_data['path']))
+            test_row = self.db.fetch_row(
+                "SELECT *, url as path, response_code as code, response_time as `time`, '' as query, 1 as checked "
+                "FROM urls WHERE `url` = '{0}'".format(url_data['path']))
             for field in url_data:
                 if field == '_id':
                     continue
@@ -344,9 +382,11 @@ class Test_SpiderCommon(ModelsCommon):
 
         urls_data = [
             {'referer': '/', 'code': 200, 'time': 10, 'who_add': 'dafs1',
-             'spidered': 1, 'size': 20, 'descr': 'some descr', 'hash': '6666cd76f96956469e7be39d750cc7d9', 'query': '', 'path': '/', 'checked': 1},
+             'spidered': 1, 'size': 20, 'descr': 'some descr', 'hash': '6666cd76f96956469e7be39d750cc7d9',
+             'query': '', 'path': '/', 'checked': 1},
             {'referer': '/ref1/', 'code': 200, 'time': 10, 'who_add': 'spider',
-             'spidered': 1, 'size': 20, 'descr': '', 'hash': 'fa06d89c65fb808240e37f4c9e128955', 'query': '', 'path': '/1/', 'checked': 1},
+             'spidered': 1, 'size': 20, 'descr': '', 'hash': 'fa06d89c65fb808240e37f4c9e128955',
+             'query': '', 'path': '/1/', 'checked': 1},
         ]
         Registry().get('mongo').spider_urls.insert(urls_data)
         self.model.links_in_urls_base(1, 'test.com')
@@ -357,7 +397,7 @@ class Test_SpiderCommon(ModelsCommon):
 
     @pytest.mark.skip(reason="Strange fail reason - 2 method upper work good, together - bad")
     def test_links_in_database(self):
-        Registry().set('logger', Logger())
+        Registry().set('logger', LoggerMock())
         Registry().set('pData', {'id': 1})
         self.db.q("INSERT INTO projects (id, name, descr) VALUES(1, 'prj', '')")
         self.db.q("INSERT INTO `hosts` (id, project_id, ip_id, name, descr) VALUES (1,1,1,'test.com', '')")
@@ -373,9 +413,11 @@ class Test_SpiderCommon(ModelsCommon):
 
         urls_data = [
             {'referer': '/', 'code': 200, 'time': 10, 'who_add': 'dafs1',
-             'spidered': 1, 'size': 20, 'descr': 'some descr', 'hash': '6666cd76f96956469e7be39d750cc7d9', 'query': '', 'path': '/', 'checked': 1},
+             'spidered': 1, 'size': 20, 'descr': 'some descr', 'hash': '6666cd76f96956469e7be39d750cc7d9',
+             'query': '', 'path': '/', 'checked': 1},
             {'referer': '/ref1/', 'code': 200, 'time': 10, 'who_add': 'spider',
-             'spidered': 1, 'size': 20, 'descr': '', 'hash': 'fa06d89c65fb808240e37f4c9e128955', 'query': '', 'path': '/1/', 'checked': 1},
+             'spidered': 1, 'size': 20, 'descr': '', 'hash': 'fa06d89c65fb808240e37f4c9e128955',
+             'query': '', 'path': '/1/', 'checked': 1},
         ]
         Registry().get('mongo').spider_urls.insert(urls_data)
 
@@ -385,7 +427,9 @@ class Test_SpiderCommon(ModelsCommon):
         assert self.db.fetch_one("SELECT spidered FROM urls WHERE url='/'") == 1
 
         for url_data in urls_data:
-            test_row = self.db.fetch_row("SELECT *, url as path, response_code as code, response_time as `time`, '' as query, 1 as checked FROM urls WHERE `url` = '{0}'".format(url_data['path']))
+            test_row = self.db.fetch_row(
+                "SELECT *, url as path, response_code as code, response_time as `time`, '' as query, 1 as checked "
+                "FROM urls WHERE `url` = '{0}'".format(url_data['path']))
             for field in url_data:
                 if field == '_id':
                     continue

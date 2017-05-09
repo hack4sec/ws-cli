@@ -1,20 +1,31 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+This is part of WebScout software
+Docs EN: http://hack4sec.pro/wiki/index.php/WebScout_en
+Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
+License: MIT
+Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pro> (en)
 
-import sys, os, pytest
+Unit tests for UrlsModel
+"""
 
-wrpath   = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
+import sys
+import os
+import pytest
+
+wrpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
 testpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)))
 
 sys.path.append(wrpath + '/classes')
 sys.path.append(wrpath + '/classes/models')
 
-from ModelsCommon import ModelsCommon
+from Common import Common
 from classes.models.UrlsBaseModel import UrlsBaseModel
 from classes.Registry import Registry
 
 
-class Test_UrlsBaseModel(ModelsCommon):
+class Test_UrlsBaseModel(Common):
+    """Unit tests for UrlsModel"""
     model = None
 
     def setup(self):
@@ -43,7 +54,7 @@ class Test_UrlsBaseModel(ModelsCommon):
         assert data == test_data
 
         data = self.db.fetch_all("SELECT * FROM urls_base_params")
-        test_data  = [
+        test_data = [
             {'parent_id': 4, 'id': 1, 'name': 'x'},
             {'parent_id': 4, 'id': 2, 'name': 'y'}
         ]

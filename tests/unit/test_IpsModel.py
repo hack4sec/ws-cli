@@ -1,26 +1,35 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+This is part of WebScout software
+Docs EN: http://hack4sec.pro/wiki/index.php/WebScout_en
+Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
+License: MIT
+Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pro> (en)
 
-import sys, os, unittest
+Unit tests for IpsModel
+"""
 
-wrpath   = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../')
+import sys
+import os
+
+wrpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
 testpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)))
 
 sys.path.append(wrpath + '/classes')
 sys.path.append(wrpath + '/classes/models')
 
-from ModelsCommon import ModelsCommon
+from Common import Common
 from classes.models.IpsModel import IpsModel
 
 
-class Test_IpsModel(ModelsCommon):
+class Test_IpsModel(Common):
+    """Unit tests for IpsModel"""
     model = None
 
     def setup(self):
         self.model = IpsModel()
         self.db.q("TRUNCATE TABLE ips")
 
-    # Проверка выборки или добавления в случае отсутствия записи (IP существует)
     def test_get_id_or_add_get(self):
         self.db.q("INSERT INTO ips (id, project_id, ip, descr) VALUES(2, 1, '111.111.111.111', '')")
 
@@ -30,7 +39,7 @@ class Test_IpsModel(ModelsCommon):
         assert self.model.get_id_or_add(1, '111.111.111.111') == 2
 
         assert start_count == self.db.fetch_one("SELECT COUNT(id) FROM ips")
-    # Проверка выборки или добавления в случае отсутствия записи (IP не существует)
+
     def test_get_id_or_add_add(self):
         start_count = self.db.fetch_one("SELECT COUNT(id) FROM ips")
         assert start_count == 0
@@ -39,20 +48,17 @@ class Test_IpsModel(ModelsCommon):
 
         assert start_count == self.db.fetch_one("SELECT COUNT(id) FROM ips")-1
 
-    # Проверка существования IP
     def test_exists(self):
         self.db.q("INSERT INTO ips (id, project_id, ip, descr) VALUES(2, 1, '111.111.111.111', '')")
         assert self.model.exists(1, '111.111.111.111')
         assert not self.model.exists(1, '1.1.1.1')
 
-    # Проверка добавления IP
     def test_add(self):
         assert not self.model.exists(1, '1.1.1.1')
-        id = self.model.add(1, '1.1.1.1', '')
-        assert id == 1
+        _id = self.model.add(1, '1.1.1.1', '')
+        assert _id == 1
         assert self.model.exists(1, '1.1.1.1')
 
-    # Проверка вывода списка IP
     def test_list(self):
         self.db.q("INSERT INTO ips (id, project_id, ip, descr) VALUES(1, 1, '1.1.1.1', '')")
         self.db.q("INSERT INTO ips (id, project_id, ip, descr) VALUES(2, 1, '1.1.1.2', '')")
@@ -66,7 +72,6 @@ class Test_IpsModel(ModelsCommon):
 
         assert test_data == self.model.list(1)
 
-    # Проверка удаления IP
     def test_delete(self):
         self.db.q("INSERT INTO ips (id, project_id, ip, descr) VALUES(1, 1, '1.1.1.1', '')")
         assert self.model.exists(1, '1.1.1.1')

@@ -1,9 +1,22 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+This is part of WebScout software
+Docs EN: http://hack4sec.pro/wiki/index.php/WebScout_en
+Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
+License: MIT
+Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pro> (en)
 
-import sys, os
+Common class for unit tests
+"""
 
-wrpath   = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
+import sys
+import os
+import configparser
+import mysql.connector
+import pymongo.errors
+from pymongo import MongoClient
+
+wrpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
 testpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)))
 
 sys.path.append(wrpath)
@@ -16,11 +29,13 @@ sys.path.append(wrpath + '/classes/kernel')
 
 from classes.Database import Database
 from classes.Registry import Registry
-import configparser, mysql.connector, pymongo.errors
-from pymongo import MongoClient
+from classes.Proxies import Proxies
 
 
-class ModelsCommon(object):
+class Common(object):
+    """Common class for unit tests"""
+    threads_max_work_time = 60
+
     def setup_class(self):
         config = configparser.ConfigParser()
         config.read('config.ini')
@@ -50,7 +65,9 @@ class ModelsCommon(object):
         R.set('mongo', mongo_collection)
         R.set('wr_path', wrpath)
         R.set('data_path', wrpath + '/data/')
-        R.set('ndb', Database(config['db']['host'], config['db']['user'], config['db']['pass'], config['db']['database']))
+        R.set('ndb',
+              Database(config['db']['host'], config['db']['user'], config['db']['pass'], config['db']['database']))
+        R.set('proxies', Proxies())
 
         self.db = R.get('ndb')
 

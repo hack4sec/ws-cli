@@ -1,9 +1,20 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+This is part of WebScout software
+Docs EN: http://hack4sec.pro/wiki/index.php/WebScout_en
+Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
+License: MIT
+Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pro> (en)
 
-import sys, os, unittest, configparser, mysql.connector
+Unit tests for Database class
+"""
+import sys
+import os
+import configparser
+import pytest
+import mysql.connector
 
-wrpath   = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
+wrpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
 testpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)))
 
 sys.path.append(wrpath)
@@ -14,12 +25,11 @@ sys.path.append(wrpath + '/classes/jobs')
 sys.path.append(wrpath + '/classes/threads')
 sys.path.append(wrpath + '/classes/kernel')
 
-#from CommonTest import CommonTest
 from classes.Database import Database
-from libs.common import *
-import pytest
+
 
 class Test_Database(object):
+    """Unit tests for Database class"""
     model = None
     db = None
 

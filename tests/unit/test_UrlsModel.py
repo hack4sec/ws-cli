@@ -1,9 +1,19 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+This is part of WebScout software
+Docs EN: http://hack4sec.pro/wiki/index.php/WebScout_en
+Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
+License: MIT
+Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pro> (en)
 
-import sys, os, pytest, hashlib
+Unit tests for UrlsModel
+"""
 
-wrpath   = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../')
+import sys
+import os
+import pytest
+
+wrpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
 testpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)))
 
 sys.path.append(wrpath)
@@ -14,12 +24,13 @@ sys.path.append(wrpath + '/classes/jobs')
 sys.path.append(wrpath + '/classes/threads')
 sys.path.append(wrpath + '/classes/kernel')
 
-from ModelsCommon import ModelsCommon
+from Common import Common
 from classes.models.UrlsModel import UrlsModel
-from libs.common import *
 from classes.kernel.WSException import WSException
+from libs.common import md5
 
-class Test_UrlsModel(ModelsCommon):
+class Test_UrlsModel(Common):
+    """Unit tests for UrlsModel"""
     model = None
 
     def setup(self):
@@ -34,10 +45,10 @@ class Test_UrlsModel(ModelsCommon):
     def test_one_add(self):
         assert self.db.fetch_one("SELECT 1 FROM urls") is None
 
-        id = self.model.add(1, 2, '/1/', '/ref', 200, 10, 'dafs', 1, 100, 'desc')
-        assert bool(id)
+        _id = self.model.add(1, 2, '/1/', '/ref', 200, 10, 'dafs', 1, 100, 'desc')
+        assert bool(_id)
 
-        test_url = self.db.fetch_row("SELECT * FROM urls WHERE id = " + str(id))
+        test_url = self.db.fetch_row("SELECT * FROM urls WHERE id = " + str(_id))
 
         assert test_url['project_id'] == 1
         assert test_url['host_id'] == 2
@@ -50,30 +61,44 @@ class Test_UrlsModel(ModelsCommon):
         assert test_url['descr'] == 'desc'
         assert test_url['spidered'] == 1
 
-        pass
-
     def test_add_mass(self):
         assert self.db.fetch_one("SELECT 1 FROM urls") is None
 
         data = [
-            {'url': '/1/', 'referer': '/ref1/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/2/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/3/', 'referer': '/ref3/', 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/4/', 'referer': '/ref4/', 'response_code': 401, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/5/', 'referer': '/ref5/', 'response_code': 401, 'response_time': 10, 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/6/', 'referer': '/ref6/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'size': 20, 'descr': 'some descr'},
-            {'url': '/7/', 'referer': '/ref7/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'descr': 'some descr'},
-            {'url': '/8/', 'referer': '/ref8/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20}
+            {'url': '/1/', 'referer': '/ref1/', 'response_code': 401, 'response_time': 10,
+             'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/2/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs',
+             'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/3/', 'referer': '/ref3/', 'response_time': 10, 'who_add': 'dafs',
+             'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/4/', 'referer': '/ref4/', 'response_code': 401, 'who_add': 'dafs',
+             'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/5/', 'referer': '/ref5/', 'response_code': 401, 'response_time': 10,
+             'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/6/', 'referer': '/ref6/', 'response_code': 401, 'response_time': 10,
+             'who_add': 'dafs', 'size': 20, 'descr': 'some descr'},
+            {'url': '/7/', 'referer': '/ref7/', 'response_code': 401, 'response_time': 10,
+             'who_add': 'dafs', 'spidered': 1, 'descr': 'some descr'},
+            {'url': '/8/', 'referer': '/ref8/', 'response_code': 401, 'response_time': 10,
+             'who_add': 'dafs', 'spidered': 1, 'size': 20}
         ]
         test_data = [
-            {'url': '/1/', 'referer': '/ref1/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/2/', 'referer': '', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/3/', 'referer': '/ref3/', 'response_code': 0, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/4/', 'referer': '/ref4/', 'response_code': 401, 'response_time': 0, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/5/', 'referer': '/ref5/', 'response_code': 401, 'response_time': 10, 'who_add': 'human', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/6/', 'referer': '/ref6/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 0, 'size': 20, 'descr': 'some descr'},
-            {'url': '/7/', 'referer': '/ref7/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 0, 'descr': 'some descr'},
-            {'url': '/8/', 'referer': '/ref8/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs', 'spidered': 1, 'size': 20, 'descr': ''},
+            {'url': '/1/', 'referer': '/ref1/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs',
+             'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/2/', 'referer': '', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs',
+             'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/3/', 'referer': '/ref3/', 'response_code': 0, 'response_time': 10, 'who_add': 'dafs',
+             'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/4/', 'referer': '/ref4/', 'response_code': 401, 'response_time': 0, 'who_add': 'dafs',
+             'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/5/', 'referer': '/ref5/', 'response_code': 401, 'response_time': 10, 'who_add': 'human',
+             'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/6/', 'referer': '/ref6/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs',
+             'spidered': 0, 'size': 20, 'descr': 'some descr'},
+            {'url': '/7/', 'referer': '/ref7/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs',
+             'spidered': 1, 'size': 0, 'descr': 'some descr'},
+            {'url': '/8/', 'referer': '/ref8/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs',
+             'spidered': 1, 'size': 20, 'descr': ''},
         ]
         self.model.add_mass(1, 2, data)
         for test_url in self.db.fetch_all("SELECT * FROM urls ORDER BY id ASC"):
@@ -82,13 +107,19 @@ class Test_UrlsModel(ModelsCommon):
             assert test_url['host_id'] == 2
             assert test_url['hash'] == md5(test_data[test_key]['url'])
             assert test_url['url'] == test_data[test_key]['url']
-            assert test_url['referer'] == ('' if 'referer' not in test_data[test_key].keys() else test_data[test_key]['referer'])
-            assert test_url['response_code'] == (0 if 'response_code' not in test_data[test_key].keys() else test_data[test_key]['response_code'])
-            assert test_url['response_time'] == (0 if 'response_time' not in test_data[test_key].keys() else test_data[test_key]['response_time'])
+            assert test_url['referer'] == \
+                   ('' if 'referer' not in test_data[test_key].keys() else test_data[test_key]['referer'])
+            assert test_url['response_code'] == \
+                   (0 if 'response_code' not in test_data[test_key].keys() else test_data[test_key]['response_code'])
+            assert test_url['response_time'] == \
+                   (0 if 'response_time' not in test_data[test_key].keys() else test_data[test_key]['response_time'])
             assert test_url['size'] == (0 if 'size' not in test_data[test_key].keys() else test_data[test_key]['size'])
-            assert test_url['who_add'] == ('human' if 'who_add' not in test_data[test_key].keys() else test_data[test_key]['who_add'])
-            assert test_url['descr'] == ('' if 'descr' not in test_data[test_key].keys() else test_data[test_key]['descr'])
-            assert test_url['spidered'] == (0 if 'spidered' not in test_data[test_key].keys() else test_data[test_key]['spidered'])
+            assert test_url['who_add'] == \
+                   ('human' if 'who_add' not in test_data[test_key].keys() else test_data[test_key]['who_add'])
+            assert test_url['descr'] == \
+                   ('' if 'descr' not in test_data[test_key].keys() else test_data[test_key]['descr'])
+            assert test_url['spidered'] == \
+                   (0 if 'spidered' not in test_data[test_key].keys() else test_data[test_key]['spidered'])
 
     def test_add_mass_wo_url(self):
         with pytest.raises(WSException) as ex:
@@ -104,14 +135,22 @@ class Test_UrlsModel(ModelsCommon):
         self.db.q("INSERT INTO `hosts` (`id`, `project_id`, `ip_id`, `name`, `descr`) VALUES(2, 1, 1, 'test.com', '')")
 
         data = [
-            {'url': '/1/', 'referer': '/ref1/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs1', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/2/', 'referer': '/ref2/', 'response_code': 402, 'response_time': 10, 'who_add': 'dafs2', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/3/', 'referer': '/ref3/', 'response_code': 403, 'response_time': 10, 'who_add': 'dafs3', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/4/', 'referer': '/ref4/', 'response_code': 200, 'response_time': 10, 'who_add': 'dafs4', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/5/', 'referer': '/ref5/', 'response_code': 201, 'response_time': 10, 'who_add': 'dafs5', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/6/', 'referer': '/ref6/', 'response_code': 301, 'response_time': 10, 'who_add': 'dafs6', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/7/', 'referer': '/ref7/', 'response_code': 501, 'response_time': 10, 'who_add': 'dafs7', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/8/', 'referer': '/ref8/', 'response_code': 101, 'response_time': 10, 'who_add': 'dafs8', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/1/', 'referer': '/ref1/', 'response_code': 401, 'response_time': 10,
+             'who_add': 'dafs1', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/2/', 'referer': '/ref2/', 'response_code': 402, 'response_time': 10,
+             'who_add': 'dafs2', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/3/', 'referer': '/ref3/', 'response_code': 403, 'response_time': 10,
+             'who_add': 'dafs3', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/4/', 'referer': '/ref4/', 'response_code': 200, 'response_time': 10,
+             'who_add': 'dafs4', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/5/', 'referer': '/ref5/', 'response_code': 201, 'response_time': 10,
+             'who_add': 'dafs5', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/6/', 'referer': '/ref6/', 'response_code': 301, 'response_time': 10,
+             'who_add': 'dafs6', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/7/', 'referer': '/ref7/', 'response_code': 501, 'response_time': 10,
+             'who_add': 'dafs7', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/8/', 'referer': '/ref8/', 'response_code': 101, 'response_time': 10,
+             'who_add': 'dafs8', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
         ]
         self.model.add_mass(1, 2, data)
 
@@ -131,14 +170,22 @@ class Test_UrlsModel(ModelsCommon):
         self.db.q("INSERT INTO `hosts` (`id`, `project_id`, `ip_id`, `name`, `descr`) VALUES(2, 1, 1, 'test.com', '')")
 
         data = [
-            {'url': '/1/', 'referer': '/ref1/', 'response_code': 401, 'response_time': 10, 'who_add': 'dafs1', 'spidered': 0, 'size': 20, 'descr': 'some descr'},
-            {'url': '/2/', 'referer': '/ref2/', 'response_code': 402, 'response_time': 10, 'who_add': 'dafs2', 'spidered': 0, 'size': 20, 'descr': 'some descr'},
-            {'url': '/3/', 'referer': '/ref3/', 'response_code': 403, 'response_time': 10, 'who_add': 'dafs3', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/4/', 'referer': '/ref4/', 'response_code': 200, 'response_time': 10, 'who_add': 'dafs4', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/5/', 'referer': '/ref5/', 'response_code': 201, 'response_time': 10, 'who_add': 'dafs5', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/6/', 'referer': '/ref6/', 'response_code': 301, 'response_time': 10, 'who_add': 'dafs6', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/7/', 'referer': '/ref7/', 'response_code': 501, 'response_time': 10, 'who_add': 'dafs7', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
-            {'url': '/8/', 'referer': '/ref8/', 'response_code': 101, 'response_time': 10, 'who_add': 'dafs8', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/1/', 'referer': '/ref1/', 'response_code': 401, 'response_time': 10,
+             'who_add': 'dafs1', 'spidered': 0, 'size': 20, 'descr': 'some descr'},
+            {'url': '/2/', 'referer': '/ref2/', 'response_code': 402, 'response_time': 10,
+             'who_add': 'dafs2', 'spidered': 0, 'size': 20, 'descr': 'some descr'},
+            {'url': '/3/', 'referer': '/ref3/', 'response_code': 403, 'response_time': 10,
+             'who_add': 'dafs3', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/4/', 'referer': '/ref4/', 'response_code': 200, 'response_time': 10,
+             'who_add': 'dafs4', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/5/', 'referer': '/ref5/', 'response_code': 201, 'response_time': 10,
+             'who_add': 'dafs5', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/6/', 'referer': '/ref6/', 'response_code': 301, 'response_time': 10,
+             'who_add': 'dafs6', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/7/', 'referer': '/ref7/', 'response_code': 501, 'response_time': 10,
+             'who_add': 'dafs7', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
+            {'url': '/8/', 'referer': '/ref8/', 'response_code': 101, 'response_time': 10,
+             'who_add': 'dafs8', 'spidered': 1, 'size': 20, 'descr': 'some descr'},
         ]
         self.model.add_mass(1, 2, data)
         data = [data[0], data[1]]

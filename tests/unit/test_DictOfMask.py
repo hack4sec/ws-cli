@@ -1,9 +1,17 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+This is part of WebScout software
+Docs EN: http://hack4sec.pro/wiki/index.php/WebScout_en
+Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
+License: MIT
+Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pro> (en)
 
-import sys, os
+Unit tests for DictOfMask
+"""
+import sys
+import os
 
-wrpath   = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
+wrpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
 testpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)))
 
 sys.path.append(wrpath)
@@ -12,16 +20,13 @@ sys.path.append(wrpath + '/classes/models')
 sys.path.append(wrpath + '/classes/kernel')
 sys.path.append(testpath + '/classes')
 
-#from CommonTest import CommonTest
 from classes.DictOfMask import DictOfMask
-from libs.common import *
-from classes.kernel.WSException import WSException
 
 
 class Test_DictOfMask(object):
+    """Unit tests for DictOfMask"""
     model = None
 
-    # Тест генерации словарей по маскам
     def test_gen_dict(self):
         test_data = {
             '?l': [
@@ -74,8 +79,10 @@ class Test_DictOfMask(object):
                 'vr', 'wr', 'xr', 'yr', 'zr', '0r', '1r', '2r', '3r', '4r', '5r', '6r', '7r', '8r', '9r', 'as', 'bs',
                 'cs', 'ds', 'es', 'fs', 'gs', 'hs', 'is', 'js', 'ks', 'ls', 'ms', 'ns', 'os', 'ps', 'qs', 'rs', 'ss',
                 'ts', 'us', 'vs', 'ws', 'xs', 'ys', 'zs', '0s', '1s', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s',
-                'at', 'bt', 'ct', 'dt', 'et', 'ft', 'gt', 'ht', 'it', 'jt', 'kt', 'lt', 'mt', 'nt', 'ot', 'pt', 'qt', 'rt',
-                'st', 'tt', 'ut', 'vt', 'wt', 'xt', 'yt', 'zt', '0t', '1t', '2t', '3t', '4t', '5t', '6t', '7t', '8t', '9t',
+                'at', 'bt', 'ct', 'dt', 'et', 'ft', 'gt', 'ht', 'it', 'jt', 'kt', 'lt', 'mt', 'nt', 'ot', 'pt', 'qt',
+                'rt',
+                'st', 'tt', 'ut', 'vt', 'wt', 'xt', 'yt', 'zt', '0t', '1t', '2t', '3t', '4t', '5t', '6t', '7t', '8t',
+                '9t',
                 'au', 'bu', 'cu', 'du', 'eu', 'fu', 'gu', 'hu', 'iu', 'ju', 'ku', 'lu', 'mu', 'nu', 'ou', 'pu', 'qu',
                 'ru', 'su', 'tu', 'uu', 'vu', 'wu', 'xu', 'yu', 'zu', '0u', '1u', '2u', '3u', '4u', '5u', '6u', '7u',
                 '8u', '9u', 'av', 'bv', 'cv', 'dv', 'ev', 'fv', 'gv', 'hv', 'iv', 'jv', 'kv', 'lv', 'mv', 'nv', 'ov',

@@ -1,9 +1,18 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+This is part of WebScout software
+Docs EN: http://hack4sec.pro/wiki/index.php/WebScout_en
+Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
+License: MIT
+Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pro> (en)
 
-import sys, os, pprint
+Unit tests for CombineGenetator
+"""
 
-wrpath   = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
+import sys
+import os
+
+wrpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
 testpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)))
 
 sys.path.append(wrpath)
@@ -13,9 +22,10 @@ sys.path.append(wrpath + '/classes/kernel')
 sys.path.append(testpath + '/classes')
 
 from classes.CombineGenerator import CombineGenerator
-from libs.common import *
+from libs.common import file_put_contents
 
 class Test_CombineGenerator(object):
+    """Unit tests for CombineGenetator"""
     def test_gen_dm_no_parts(self):
         test_set = [
             'aaa0', 'bbb0', 'ccc0',
@@ -33,13 +43,14 @@ class Test_CombineGenerator(object):
 
         file_put_contents('/tmp/test.txt', 'aaa\nbbb\nccc')
         gen = CombineGenerator('?d,1,1', '/tmp/test.txt', parts=0, part=0, template='%d%%m%')
+
         for test_phrase in test_set:
             assert gen.get() == test_phrase
         assert gen.get() is None
 
     def test_gen_md_no_parts(self):
         test_set = [
-            '0aaa', '1aaa', '2aaa', '3aaa',  '4aaa', '5aaa', '6aaa', '7aaa', '8aaa', '9aaa',
+            '0aaa', '1aaa', '2aaa', '3aaa', '4aaa', '5aaa', '6aaa', '7aaa', '8aaa', '9aaa',
             '0bbb', '1bbb', '2bbb', '3bbb', '4bbb', '5bbb', '6bbb', '7bbb', '8bbb', '9bbb',
             '0ccc', '1ccc', '2ccc', '3ccc', '4ccc', '5ccc', '6ccc', '7ccc', '8ccc', '9ccc',
         ]

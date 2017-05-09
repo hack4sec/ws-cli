@@ -1,47 +1,52 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+This is part of WebScout software
+Docs EN: http://hack4sec.pro/wiki/index.php/WebScout_en
+Docs RU: http://hack4sec.pro/wiki/index.php/WebScout
+License: MIT
+Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pro> (en)
 
-import sys, os, pprint
+Unit tests for MongoJob
+"""
+import sys
+import os
 
-wrpath   = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
+wrpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + '/../../')
 testpath = os.path.realpath(os.path.dirname(os.path.realpath(__file__)))
 
 sys.path.append(wrpath)
 sys.path.append(wrpath + '/classes')
 sys.path.append(wrpath + '/classes/jobs')
 
-from ModelsCommon import ModelsCommon
+from Common import Common
 from classes.jobs.MongoJob import MongoJob
-from libs.common import *
+from classes.Registry import Registry
 
 class JobForTest(MongoJob):
+    """Test Job"""
     collection_name = 'testcol'
 
-    def build_row(self, str):
+    def build_row(self, _str):
         return {
-            "name": str.strip(),
+            "name": _str.strip(),
             "checked": 0,
             "getted": 0
         }
 
-class Test_MongoJob(ModelsCommon):
+class Test_MongoJob(Common):
+    """Unit tests for MongoJob"""
     model = None
 
     def setup(self):
         Registry().set('config', {'main': {'mongo_data_load_per_once': 1000}})
         self.model = JobForTest()
 
-    # Проверка вывода верного размера очереди из MongoDB
     def test_qsize(self):
-        pprint.pprint(1)
         self.model.collection.drop()
 
         assert self.model.qsize() == 0
-        pprint.pprint(12)
         self.model.load_dict(['one', 'two', 'three'])
         assert self.model.qsize() == 3
-        pprint.pprint(3)
         self.model.task_done('one')
         self.model.task_done('two')
         assert self.model.qsize() == 1
-        pprint.pprint(4)
