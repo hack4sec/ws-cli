@@ -47,15 +47,18 @@ class DnsBruteThread(threading.Thread):
 
         req_func = getattr(dns.query, self.proto.lower())
 
+        need_retest = False
+
         while True:
             if self.delay:
                 time.sleep(self.delay)
             try:
-                host = self.queue.get()
-                if not len(host.strip()) or (self.ignore_words_re and self.ignore_words_re.findall(host)):
-                    continue
+                if not need_retest:
+                    host = self.queue.get()
+                    if not len(host.strip()) or (self.ignore_words_re and self.ignore_words_re.findall(host)):
+                        continue
 
-                self.counter.up()
+                    self.counter.up()
                 check_name = self.template.replace(self.msymbol, host) + '.' + self.domain
                 query = dns.message.make_query(check_name, 'A')
                 result = req_func(query, self.dns_srv, timeout=5)
@@ -85,11 +88,15 @@ class DnsBruteThread(threading.Thread):
                 if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
                     Registry().set('positive_limit_stop', True)
 
+                need_retest = False
             except Queue.Empty:
                 self.done = True
                 break
-
+            except dns.exception.Timeout:
+                need_retest = True
+                time.sleep(1)
             except BaseException as e:
                 self.logger.ex(e)
+                self.logger.log("Exception with {0}".format(self.dns_srv))
                 time.sleep(5)
 
