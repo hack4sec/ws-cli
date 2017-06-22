@@ -9,6 +9,7 @@ Copyright (c) Anton Kuzmin <http://anton-kuzmin.ru> (ru) <http://anton-kuzmin.pr
 Class of Hosts module
 """
 import socket
+import os
 
 from libs.common import validate_host, validate_ip
 from classes.Registry import Registry
@@ -34,7 +35,12 @@ class Hosts(WSModule):
             "host": WSOption("host", "Host for add", "", True, ['--host']),
             "ip": WSOption("ip", "Custom IP for this host", "", False, ['--ip']),
             "descr": WSOption("descr", "Description of host", "", False, ['--descr'])
-        }
+        },
+        "addlist": {
+            "file": WSOption("file", "File with hosts for add", "", True, ['--file']),
+            "ip": WSOption("ip", "Custom IP for this hosts", "", False, ['--ip']),
+            "descr": WSOption("descr", "Description of hosts", "", False, ['--descr'])
+        },
     }
 
     def __init__(self, kernel):
@@ -43,11 +49,15 @@ class Hosts(WSModule):
 
     def validate_main(self):
         """ Check users params """
-        if not (validate_host(self.options['host'].value) or validate_ip(self.options['host'].value)):
+        if 'host' in self.options and not \
+                (validate_host(self.options['host'].value) or validate_ip(self.options['host'].value)):
             raise WSException("'{0}' is not valid host name or ip!".format(self.options['host'].value))
         if 'ip' in self.options and self.options['ip'].value:
             if not validate_ip(self.options['ip'].value):
                 raise WSException("IP '{0}' is not valid ip-address!".format(self.options['ip'].value))
+        if 'list' in self.options and self.options['file'].value:
+            if not os.path.exists(self.options['file'].value):
+                raise WSException("File {0} not exists or not readable".format(self.options['file'].value))
 
     def run(self, action):
         """ Method of run the module """
@@ -57,14 +67,23 @@ class Hosts(WSModule):
     def add_action(self):
         """ Action add of module """
         self.validate_main()
+        self._add_host(self.options['host'].value, self.options['ip'].value, self.options['descr'].value)
 
+    def addlist_action(self):
+        """ Action add of module """
+        self.validate_main()
+
+        fh = open(self.options['file'].value, 'r')
+        for line in fh:
+            line = line.strip()
+            if len(line):
+                self._add_host(line, self.options['ip'].value, self.options['descr'].value)
+        fh.close()
+
+    def _add_host(self, name, ip='', descr=""):
         pData = Registry().get('pData')
-        name = self.options['host'].value
-        descr = self.options['descr'].value
 
-        if self.options['ip'].value:
-            ip = self.options['ip'].value
-        else:
+        if ip == '':
             try:
                 ip = socket.gethostbyname(name)
                 print " IP for host '{0}' is '{1}'".format(name, ip)

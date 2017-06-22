@@ -1,4 +1,5 @@
 0.4 dev
+ Added host adding by file list (addlist action of Hosts module)
  Logger now print exceptions information in stdout
  Fixed Spider bug with only http-links
  ParamsBrute* modules added
