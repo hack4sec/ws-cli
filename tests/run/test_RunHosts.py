@@ -46,6 +46,26 @@ class Test_RunHosts(CommonTest):
         assert out.find("Host 'wrtest.com' successfully added to project 'test' with IP '127.0.0.1'") > -1
         assert self.db.fetch_one("SELECT COUNT(id) FROM hosts") == 1
 
+    def test_add_list(self):
+        self.db.q("INSERT INTO projects (id, name, descr) VALUES(1, 'test', 'desc1')")
+        self.db.q("INSERT INTO ips (id, project_id, ip, descr) VALUES(1, 1, '127.0.0.1', 'ipdesc1')")
+
+        assert self.db.fetch_one("SELECT COUNT(id) FROM hosts") == 0
+
+        self._replace_config('normal')
+        os.chdir(wrpath)
+        out = subprocess.check_output([
+            './main.py', 'test', 'Hosts', 'addlist', '--file=tests/run/files/hosts-list.txt'
+        ])
+        self._restore_config()
+        self.output_errors(out)
+
+        assert out.find("Host 'ya.ru' successfully added to project 'test'") > -1
+        assert out.find("Host 'www.com' successfully added to project 'test'") > -1
+        assert out.find("Host 'google.com' successfully added to project 'test'") > -1
+
+        assert self.db.fetch_one("SELECT COUNT(id) FROM hosts") == 3
+
     def test_add_ip_lookup(self):
         self.db.q("INSERT INTO projects (id, name, descr) VALUES(1, 'test', 'desc1')")
 
