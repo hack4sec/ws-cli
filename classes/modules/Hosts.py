@@ -77,7 +77,10 @@ class Hosts(WSModule):
         for line in fh:
             line = line.strip()
             if len(line):
-                self._add_host(line, self.options['ip'].value, self.options['descr'].value)
+                try:
+                    self._add_host(line, self.options['ip'].value, self.options['descr'].value)
+                except WSException:
+                    pass
         fh.close()
 
     def _add_host(self, name, ip='', descr=""):
