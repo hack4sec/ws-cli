@@ -34,7 +34,7 @@ class DnsBruteModules(WSModule):
 
     def validate_main(self):
         """ Check users params """
-        if 'host' in self.options.keys() and \
+        if 'host' in self.options.keys() and self.options['host'].value != 'all' and \
                 not HostsModel().exists(Registry().get('pData')['id'], self.options['host'].value):
             raise WSException("Host '{0}' not found in this project!".format(self.options['host'].value))
 
@@ -101,9 +101,15 @@ class DnsBruteModules(WSModule):
                     self.logger.log("Check server {0}. Don`t work.".format(next_server))
                     we_need_server = True
 
+            hosts = []
+            if self.options['host'].value == 'all':
+                hosts_model = HostsModel()
+                hosts.extend(hosts_model.list_of_names(Registry().get('pData')['id']))
+            else:
+                hosts.append(self.options['host'].value)
             worker = DnsBruteThread(
                 q,
-                self.options['host'].value,
+                hosts,
                 self.options['template'].value,
                 protocol,
                 self.options['msymbol'].value,

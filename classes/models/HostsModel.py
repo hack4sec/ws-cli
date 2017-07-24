@@ -48,6 +48,15 @@ class HostsModel(CommonModel):
             1
         )
 
+    def list_of_names(self, project_id):
+        """ Get names list of hosts by project_id """
+        return self._db.fetch_col(
+            "SELECT h.name FROM hosts h "
+            "WHERE h.project_id = {0} "
+            "ORDER BY h.name ASC"
+            .format(self._db.quote(project_id))
+        )
+
     def list(self, project_id, ip):
         """ Get list of hosts by project_id AND IPv4 """
         ip_id = IpsModel().get_id(project_id, ip)

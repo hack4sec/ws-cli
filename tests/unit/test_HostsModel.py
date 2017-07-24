@@ -60,6 +60,17 @@ class Test_HostsModel(Common):
 
         assert test_data == self.model.list(1, '111.111.111.111')
 
+    def test_list_of_names(self):
+        self.db.q("INSERT INTO `ips` (id, project_id, ip, descr) VALUES (1, 1, '111.111.111.111', '')")
+
+        self.db.q("INSERT INTO `hosts` (id, project_id, ip_id, name, descr) VALUES (1, 1, 1, 'test1.com', 'desc1')")
+        self.db.q("INSERT INTO `hosts` (id, project_id, ip_id, name, descr) VALUES (2, 1, 1, 'test2.com', 'desc2')")
+        self.db.q("INSERT INTO `hosts` (id, project_id, ip_id, name, descr) VALUES (3, 1, 1, 'test3.com', 'desc3')")
+
+        test_data = ['test1.com', 'test2.com', 'test3.com']
+
+        assert test_data == self.model.list_of_names(1)
+
     def test_delete(self):
         self.db.q("INSERT INTO `hosts` (id, project_id, ip_id, name, descr) VALUES (2,1,1,'test.com', '')")
         assert self.model.exists(1, 'test.com')

@@ -23,10 +23,10 @@ class DnsBruteThread(threading.Thread):
     """ Thread class for DnsBrute* modules """
     done = False
 
-    def __init__(self, queue, domain, template, proto, msymbol, ignore_ip, dns_srv, delay, http_nf_re, ignore_words_re, result, counter):
+    def __init__(self, queue, domains, template, proto, msymbol, ignore_ip, dns_srv, delay, http_nf_re, ignore_words_re, result, counter):
         threading.Thread.__init__(self)
         self.queue = queue
-        self.domain = domain
+        self.domains = domains
         self.proto = proto
         self.dns_srv = dns_srv
         self.counter = counter
@@ -59,31 +59,33 @@ class DnsBruteThread(threading.Thread):
                         continue
 
                     self.counter.up()
-                check_name = self.template.replace(self.msymbol, host) + '.' + self.domain
-                query = dns.message.make_query(check_name, 'A')
-                result = req_func(query, self.dns_srv, timeout=5)
-                response = ns_resp_re.search(result.to_text())
-                if response is not None:
-                    for ip in ip_re.findall(response.group('data')):
-                        if not len(self.ignore_ip) or ip != self.ignore_ip:
-                            if self.http_nf_re is not None:
-                                resp = Registry().get('http').get(
-                                    "http://{0}/".format(ip),
-                                    headers={'Host': check_name},
-                                    allow_redirects=False)
-                                if not self.http_nf_re.findall(resp.text):
-                                    self.result.append({'name': check_name, 'ip': ip, 'dns': self.dns_srv})
-                                else:
+
+                for domain in self.domains:
+                    check_name = self.template.replace(self.msymbol, host) + '.' + domain
+                    query = dns.message.make_query(check_name, 'A')
+                    result = req_func(query, self.dns_srv, timeout=5)
+                    response = ns_resp_re.search(result.to_text())
+                    if response is not None:
+                        for ip in ip_re.findall(response.group('data')):
+                            if not len(self.ignore_ip) or ip != self.ignore_ip:
+                                if self.http_nf_re is not None:
                                     resp = Registry().get('http').get(
-                                        "https://{0}/".format(ip),
+                                        "http://{0}/".format(ip),
                                         headers={'Host': check_name},
-                                        allow_redirects=False,
-                                        verify=False)
+                                        allow_redirects=False)
                                     if not self.http_nf_re.findall(resp.text):
                                         self.result.append({'name': check_name, 'ip': ip, 'dns': self.dns_srv})
-                            else:
-                                self.result.append({'name': check_name, 'ip': ip, 'dns': self.dns_srv})
-                        break
+                                    else:
+                                        resp = Registry().get('http').get(
+                                            "https://{0}/".format(ip),
+                                            headers={'Host': check_name},
+                                            allow_redirects=False,
+                                            verify=False)
+                                        if not self.http_nf_re.findall(resp.text):
+                                            self.result.append({'name': check_name, 'ip': ip, 'dns': self.dns_srv})
+                                else:
+                                    self.result.append({'name': check_name, 'ip': ip, 'dns': self.dns_srv})
+                            break
 
                 if len(self.result) >= int(Registry().get('config')['main']['positive_limit_stop']):
                     Registry().set('positive_limit_stop', True)

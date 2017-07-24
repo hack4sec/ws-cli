@@ -54,7 +54,7 @@ class Test_DnsBruteThread(Common):
 
         thrd = DnsBruteThread(
             queue=queue,
-            domain='wrtest.com',
+            domains='wrtest.com',
             template='@',
             proto=protocol,
             msymbol='@',
