@@ -133,6 +133,14 @@ class DnsBruteModules(WSModule):
                     del w_thrds[w_thrds.index(worker)]
             time.sleep(2)
 
+        if self.options['host'].value == 'all':
+            self._output_zones(result)
+        else:
+            self._output(result)
+
+        self.done = True
+
+    def _output(self, result):
         self.logger.log("\nFound hosts (full):")
         for host in result:
             self.logger.log("\t{0} {1} (DNS: {2})".format(host['name'], host['ip'], host['dns']))
@@ -159,7 +167,59 @@ class DnsBruteModules(WSModule):
         else:
             self.logger.log("Found")
 
-        self.done = True
+    def _output_zones(self, result):
+        zones = {}
+        for host in result:
+            zone = ".".join(host['name'].split(".")[-2:])
+            if zone not in zones.keys():
+                zones[zone] = []
+            zones[zone].append(host)
+            zones[zone].sort()
+
+        self.logger.log("\nFound hosts (full):")
+        for zone in zones:
+            self.logger.log("\tZone {0}:".format(zone))
+
+            for host in zones[zone]:
+                self.logger.log("\t\t{0} {1} (DNS: {2})".format(host['name'], host['ip'], host['dns']))
+
+        self.logger.log("\nFound hosts names:")
+        for zone in zones:
+            self.logger.log("\tZone {0}:".format(zone))
+            for host in zones[zone]:
+                self.logger.log("\t\t{0}".format(host['name']))
+
+        self.logger.log("Found IPs by zones:")
+        for zone in zones:
+            self.logger.log("\tZone {0}:".format(zone))
+
+            uniq_hosts = []
+            for host in zones[zone]:
+                uniq_hosts.append(host['ip'])
+            uniq_hosts = list(set(uniq_hosts))
+
+            for host in uniq_hosts:
+                self.logger.log("\t\t" + host)
+
+        self.logger.log("Found IPs (all):")
+
+        uniq_hosts = []
+        for zone in zones:
+            for host in zones[zone]:
+                uniq_hosts.append(host['ip'])
+        uniq_hosts = list(set(uniq_hosts))
+
+        for host in uniq_hosts:
+            self.logger.log("\t" + host)
+
+        if not Registry().get('positive_limit_stop') and int(Registry().get('config')['main']['put_data_into_db']):
+            self.logger.log("Put found hosts into DB...")
+            for zone in zones:
+                added = self._insert_hosts(zones[zone])
+
+            self.logger.log("\nFound {0} hosts, inserted in database (new) - {1}.".format(len(result), added))
+        else:
+            self.logger.log("Found")
 
     def _insert_hosts(self, hosts):
         """ Add found hosts in db """
