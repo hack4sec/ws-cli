@@ -12,7 +12,6 @@ import time
 import Queue
 import re
 import threading
-import requests
 
 import dns.query
 import dns.message
@@ -61,9 +60,23 @@ class DnsBruteThread(threading.Thread):
                     self.counter.up()
 
                 for domain in self.domains:
-                    check_name = self.template.replace(self.msymbol, host) + '.' + domain
+                    check_name = self.template.replace(self.msymbol, host.decode('utf8', 'ignore')) + '.' + domain
                     query = dns.message.make_query(check_name, 'A')
-                    result = req_func(query, self.dns_srv, timeout=5)
+
+                    try:
+                        result = req_func(query, self.dns_srv, timeout=5)
+                    except EOFError:
+                        time.sleep(5)
+                        need_retest = True
+                        break
+                    except BaseException as e:
+                        if str(e).count("Connection refused"):
+                            time.sleep(5)
+                            need_retest = True
+                            break
+                        else:
+                            raise e
+
                     response = ns_resp_re.search(result.to_text())
                     if response is not None:
                         for ip in ip_re.findall(response.group('data')):
