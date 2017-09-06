@@ -10,6 +10,7 @@ Class for generate and work with masks
 """
 
 import re
+import time
 
 
 class DictOfMask(object):
@@ -204,6 +205,11 @@ class DictOfMask(object):
         """ Get symbol for every mask position and return list of it """
         to_return = []
         for point in self.symbols_points:
-            to_return.append(self.masks[self.work_mask][point][self.symbols_points[point]])
+            try:
+                to_return.append(self.masks[self.work_mask][point][self.symbols_points[point]])
+            except IndexError:
+                time.sleep(0.1)
+                return self._get()
+
         self._up_last_point()
         return to_return
