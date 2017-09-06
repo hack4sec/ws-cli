@@ -66,12 +66,14 @@ class DnsBruteThread(threading.Thread):
                     try:
                         result = req_func(query, self.dns_srv, timeout=5)
                     except EOFError:
-                        time.sleep(5)
+                        time.sleep(3)
                         need_retest = True
                         break
                     except BaseException as e:
-                        if str(e).count("Connection refused"):
-                            time.sleep(5)
+                        if str(e).count("Connection refused") or\
+                                str(e).count("Connection reset by peer") or\
+                                str(e).count("[Errno 104]"):
+                            time.sleep(3)
                             need_retest = True
                             break
                         else:
