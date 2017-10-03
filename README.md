@@ -1,3 +1,5 @@
+Team R.I.P. All releases transfered to https://github.com/AntonKuzminRussia
+
 # WebScout
 WebScount (WS) — set of tools for gathering information from web-sites or web-applications in pen-testing process. It have two base parts: work part and visual part. Work part it`s cli application writed on Python v2.7. Visual representation of gathered information occur in web-app writed on PHP5+ZendFramework v1.12 (it's exists in work part too, but in cli-mode). 
 
